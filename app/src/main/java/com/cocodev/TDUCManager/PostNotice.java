@@ -13,7 +13,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class Notices extends AppCompatActivity {
+public class PostNotice extends AppCompatActivity {
 
     DatabaseReference mNoticeRef;
     EditText mDesc,mDepartment,mDeadline;
@@ -47,7 +47,7 @@ public class Notices extends AppCompatActivity {
         mNoticeRef.push().setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(Notices.this,"Notice Uploaded!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(PostNotice.this,"Notice Uploaded!",Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:weightSum="1"
-        tools:context="com.cocodev.TDUCManager.Notices">
+        tools:context="com.cocodev.TDUCManager.PostNotice">
 
         <TextView
             android:layout_width="match_parent"

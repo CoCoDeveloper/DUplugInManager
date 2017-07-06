@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.cocodev.TDUCManager.Utility.User;
+import com.cocodev.TDUCManager.articles.PendingArticles;
 import com.cocodev.TDUCManager.articles.SubmittedArticles;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static String CollegeName;
 
     private final int REQUEST_CODE_SETTINGS_ACTIVITY = 1001;
-    String[] submenus = {"Articles","Notices","SubmitEvent"};
+    String[] submenus = {"Articles","PostNotice","SubmitEvent"};
     private String CURRENT_FRAGMENT = "currentFragment";
     private final int HOME_FRAGMENT =0;
     private final int NOTICE_BOARD_FRAGMENT =1;
@@ -73,7 +74,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         menu = navigationView.getMenu();
-
+        if(currentUser.getClearenceLevel()>=10){
+            populateMenu();
+        }
 
         if(getSupportFragmentManager().findFragmentById(R.id.fragment_layout)==null){
             getSupportFragmentManager().beginTransaction().replace(
@@ -85,10 +88,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    private void populateMenu() {
+        MenuItem pendingArticles = menu.add("PendingArticles");
+        pendingArticles.setOnMenuItemClickListener(menuItemClickListener);
+        pendingArticles.setCheckable(true);
+
+    }
+
     private void setCollegeName() {
         SharedPreferences sharedPreferences = getSharedPreferences(SA.fileName_HP, Context.MODE_PRIVATE);
         CollegeName = sharedPreferences.getString(SA.KEY_COLLEGE,"");
     }
+
+    private MenuItem.OnMenuItemClickListener menuItemClickListener = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            if(item.getTitle().equals("PendingArticles")) {
+                getSupportFragmentManager().beginTransaction().replace(
+                        R.id.fragment_layout,
+                        new PendingArticles()
+                ).commit();
+
+            }
+            return false;
+        }
+    };
 
     @Override
     protected void onResume() {

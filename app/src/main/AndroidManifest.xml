@@ -32,12 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SubmitArticle" />
         <activity android:name=".Articles" />
-        <activity android:name=".Notices" />
-        <activity android:name=".Events">
-
-        </activity>
+        <activity android:name=".PostNotice" />
+        <activity android:name=".Events"></activity>
+        <activity android:name=".pArticleDetails"></activity>
     </application>
 
 </manifest>

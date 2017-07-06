@@ -27,6 +27,7 @@ import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
+import com.cocodev.TDUCManager.pArticleDetails;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,7 +36,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 
-public class SubmittedArticles extends Fragment implements AbsListView.OnScrollListener {
+public class PendingArticles extends Fragment implements AbsListView.OnScrollListener {
 
 
     private int preLast = 0;
@@ -46,16 +47,12 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
     private DatabaseReference databaseReference;
     private CustomArticleHolderAdapter mAdapter;
 
-    public SubmittedArticles() {
+    public PendingArticles() {
     }
 
     ListView mListView;
     View mFooterView;
 
-    public static SubmittedArticles newInstance(String type) {
-        SubmittedArticles a = new SubmittedArticles();
-        return a;
-    }
 
 
     @Override
@@ -63,8 +60,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         super.onCreate(savedInstanceState);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("EmployeeContent").child(MainActivity.currentUser.getUid())
-                .child("Articles");
+        databaseReference = firebaseDatabase.getReference().child("PendingArticles").child(MainActivity.CollegeName).child("Pending");
 
     }
 
@@ -174,7 +170,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String UID = (String) ((TextView) view.findViewById(R.id.article_UID)).getText();
-            Intent intent = new Intent(getContext(), Article_details.class);
+            Intent intent = new Intent(getContext(),pArticleDetails.class);
             intent.putExtra(Article_details.key, UID);
             Pair<View, String> pair1 = Pair.create(view.findViewById(R.id.articleImage), getString(R.string.home_share_image));
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -190,7 +186,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Submitted Articles");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Pending Articles");
     }
 
 
