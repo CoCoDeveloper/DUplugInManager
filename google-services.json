@@ -56,57 +56,6 @@
           "status": 2
         }
       }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:49646810348:android:233fd8d07efcab15",
-        "android_client_info": {
-          "package_name": "com.cocodev.TDUCManager"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "49646810348-7kujjriipmbsesqovtgc840nuc964ias.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.cocodev.TDUCManager",
-            "certificate_hash": "37da939800e55907986674bcb757a9cf03e41ddd"
-          }
-        },
-        {
-          "client_id": "49646810348-kj5c8dgfesgb754ld57ohpaovdt9ua52.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCK1n2ZBtRQw3raa_E-rXoAeAn964fjfsg"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
-        },
-        "appinvite_service": {
-          "status": 2,
-          "other_platform_oauth_client": [
-            {
-              "client_id": "49646810348-ur4l66dmd1tchn6m8t3hpb674drejqen.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.cocodev.myapplication"
-              }
-            },
-            {
-              "client_id": "49646810348-kj5c8dgfesgb754ld57ohpaovdt9ua52.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
     }
   ],
   "configuration_version": "1"

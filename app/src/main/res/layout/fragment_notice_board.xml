@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.cocodev.myapplication.NoticeBoard"
+    tools:context="com.cocodev.TDUCManager.NoticeBoard"
     android:background="@null">
 
     <!-- TODO: Update blank fragment layout -->

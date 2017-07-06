@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cocodev.myapplication.SA"
+    tools:context="com.cocodev.TDUCManager.SA"
     android:id="@+id/activity_sa">
 
     <LinearLayout
@@ -20,7 +20,10 @@
             android:layout_height="wrap_content"
             android:padding="8dp"
             android:text="General"
-            android:textAppearance="@android:style/TextAppearance.Material.Large" />
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:drawableLeft="@drawable/ic_menu_event"
+            android:drawablePadding="4dp"
+            />
 
         <Spinner
             android:id="@+id/spinner_college"

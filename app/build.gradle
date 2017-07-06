@@ -5,8 +5,8 @@ android {
     buildToolsVersion '25.0.2'
 
     defaultConfig {
-        applicationId "com.cocodev.myapplication"
-        minSdkVersion 19
+        applicationId "com.cocodev.TDUCManager"
+        minSdkVersion 18
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -23,25 +23,26 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
+
+
+
+
+
+
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:support-v4:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.google.firebase:firebase-database:11.0.1'
-    compile 'com.firebaseui:firebase-ui-database:2.0.1'
+    compile 'com.firebaseui:firebase-ui:2.0.1'
     compile 'com.h6ah4i.android.tablayouthelper:tablayouthelper:0.8.0'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
+    compile 'com.github.clans:fab:1.6.2'
     testCompile 'junit:junit:4.12'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
 }
-
-
-
-
-
-
 
 
 
