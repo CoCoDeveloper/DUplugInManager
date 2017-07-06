@@ -16,7 +16,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Article_details" />
         <activity
             android:name=".SA"
@@ -32,7 +32,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SubmitArticle"></activity>
+        <activity android:name=".SubmitArticle" />
+        <activity android:name=".Articles" />
+        <activity android:name=".Notices" />
+        <activity android:name=".Events">
+
+        </activity>
     </application>
 
 </manifest>
