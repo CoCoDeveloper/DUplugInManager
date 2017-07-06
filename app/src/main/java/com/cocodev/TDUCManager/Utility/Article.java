@@ -13,6 +13,7 @@ public class Article  {
     private String imageUrl;
     private String title;
     private String writerUid;
+    private String department;
     public Article(){
         //default Constructor
     }
@@ -25,6 +26,26 @@ public class Article  {
         this.imageUrl = imageUrl;
         this.title = title;
         this.writerUid = writerUid;
+    }
+
+    public Article(String author, String description, String time, String tagLine, String imageUrl, String title, String writerUid, String department) {
+        this.UID = UID;
+        this.author = author;
+        this.description = description;
+        this.time = time;
+        this.tagLine = tagLine;
+        this.imageUrl = imageUrl;
+        this.title = title;
+        this.writerUid = writerUid;
+        this.department = department;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getWriterUid() {
