@@ -19,11 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Article_details;
+import com.cocodev.TDUCManager.Articles;
+import com.cocodev.TDUCManager.Events;
 import com.cocodev.TDUCManager.MainActivity;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
+import com.cocodev.TDUCManager.notices.Notices;
 import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,20 +38,23 @@ import com.google.firebase.database.ValueEventListener;
 public class SubmittedArticles extends Fragment implements AbsListView.OnScrollListener {
 
 
-    private int preLast =0;
+    private int preLast = 0;
     private final String LAST_SCROLL_STATE = "lastScrollState";
 
-    private long itemCount=0;
+    private long itemCount = 0;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private CustomArticleHolderAdapter mAdapter;
-    public SubmittedArticles(){}
+
+    public SubmittedArticles() {
+    }
+
     ListView mListView;
     View mFooterView;
 
-    public static SubmittedArticles newInstance(String type){
+    public static SubmittedArticles newInstance(String type) {
         SubmittedArticles a = new SubmittedArticles();
-        return  a;
+        return a;
     }
 
 
@@ -56,7 +62,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        firebaseDatabase=FirebaseDatabase.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("EmployeeContent").child(MainActivity.currentUser.getUid())
                 .child("Articles");
 
@@ -74,7 +80,27 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
         FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
 
-
+        submitArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), Articles.class);
+                startActivity(i);
+            }
+        });
+        submitEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), Events.class);
+                startActivity(i);
+            }
+        });
+        submitNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), com.cocodev.TDUCManager.Notices.class);
+                startActivity(i);
+            }
+        });
 
 
         //view to be added while loading more data;
@@ -84,12 +110,12 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(mListView==null)
+                if (mListView == null)
                     return;
                 mListView.removeFooterView(mFooterView);
                 mAdapter.notifyDataSetChanged();
             }
-        },5000);
+        }, 5000);
 
         //view when list is empty
         TextView textView = (TextView) view.findViewById(R.id.articleHolder_emptyView);
@@ -140,24 +166,23 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         mListView.setOnItemClickListener(onItemClickListener);
         mListView.setOnScrollListener(this);
 
-         return view;
+        return view;
     }
-
 
 
     AdapterView.OnItemClickListener onItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String UID = (String) ((TextView) view.findViewById(R.id.article_UID)).getText();
-            Intent intent = new Intent(getContext(),Article_details.class);
-            intent.putExtra(Article_details.key,UID);
-            Pair<View,String> pair1 = Pair.create(view.findViewById(R.id.articleImage),getString(R.string.home_share_image));
+            Intent intent = new Intent(getContext(), Article_details.class);
+            intent.putExtra(Article_details.key, UID);
+            Pair<View, String> pair1 = Pair.create(view.findViewById(R.id.articleImage), getString(R.string.home_share_image));
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     getActivity(),
                     pair1
             );
 
-            startActivity(intent,optionsCompat.toBundle());
+            startActivity(intent, optionsCompat.toBundle());
 
         }
     };
@@ -180,7 +205,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         super.onDestroy();
         mListView = null;
         mAdapter.removeListener();
-        databaseReference =null;
+        databaseReference = null;
 
     }
 
@@ -196,27 +221,26 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
 
         // Sample calculation to determine if the last
         // item is fully visible.
-        final int lastItem = firstVisibleItem + visibleItemCount-mListView.getFooterViewsCount();
+        final int lastItem = firstVisibleItem + visibleItemCount - mListView.getFooterViewsCount();
 
-        if(lastItem == totalItemCount)
-        {
-            if(preLast!=lastItem) {
-                Log.e("his",Integer.toString(preLast)+" "+Integer.toString(lastItem));
-                if(mListView.getFooterViewsCount()==0){
+        if (lastItem == totalItemCount) {
+            if (preLast != lastItem) {
+                Log.e("his", Integer.toString(preLast) + " " + Integer.toString(lastItem));
+                if (mListView.getFooterViewsCount() == 0) {
                     mListView.addFooterView(mFooterView);
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if(mListView==null)
+                            if (mListView == null)
                                 return;
                             mListView.removeFooterView(mFooterView);
                             mAdapter.notifyDataSetChanged();
                         }
-                    },5000);
+                    }, 5000);
                 }
                 preLast = lastItem;
                 //to avoid multiple calls for last item
-                mAdapter.populateMoreList(mListView,mFooterView);
+                mAdapter.populateMoreList(mListView, mFooterView);
             }
         }
 
