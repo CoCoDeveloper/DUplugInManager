@@ -12,13 +12,6 @@
         android:weightSum="1"
         tools:context="com.cocodev.TDUCManager.Events">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Upload Events From Here!"
-            android:textAlignment="center"
-            android:textSize="24sp" />
 
         <EditText
             android:id="@+id/editText_event_title"
@@ -33,6 +26,8 @@
             android:id="@+id/editText_event_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minLines="6"
+            android:inputType="textMultiLine"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
@@ -78,6 +73,10 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:text="Submit" />
-
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_margin="8dp"
+            android:id="@+id/image_view_show"/>
     </LinearLayout>
 </ScrollView>
