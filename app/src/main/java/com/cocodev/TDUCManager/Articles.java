@@ -2,12 +2,14 @@ package com.cocodev.TDUCManager;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
@@ -18,24 +20,33 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.Utility.User;
+import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 public class Articles extends AppCompatActivity {
     ImageView imgView;
@@ -51,6 +62,7 @@ public class Articles extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
+    private String Uid;
     private String Tagline;
     private String Author;
     private String Title;
@@ -58,8 +70,11 @@ public class Articles extends AppCompatActivity {
     private String Date;
     private String Department;
     private String Image;
+    private ArrayAdapter<String> collegeAdapter;
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
+
+    private static String DEFAULT_SPINNER_TEXT = "[Select a College..]";
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -90,6 +105,7 @@ public class Articles extends AppCompatActivity {
         actionBar.setTitle("Upload Articles");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
+        initCollegeSpinner();
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -172,8 +188,61 @@ public class Articles extends AppCompatActivity {
         }
     }
 
-    private void bindData() {
+    private void initCollegeSpinner() {
+        final Spinner collegeChoices = (Spinner) findViewById(R.id.spinner_college_articles);
+        final ArrayList<String> colleges = new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, colleges);
+        collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.contact_spinner_row_nothing_selected,
+                this));
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges");
 
+        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while (iterator.hasNext()) {
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String department = temp.getKey().toString();
+                    colleges.add(department);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+        collegeChoices.setOnItemSelectedListener(collegeSelectedListener);
+    }
+
+    AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            String college = (String) parent.getItemAtPosition(position);
+            if(college==DEFAULT_SPINNER_TEXT){
+                //remain GONE
+            }
+                else{
+                mDepartment.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
+
+    private void bindData() {
+        Uid = mArticleRef.push().getKey();
         Tagline = mTagline.getText().toString();
         Author = mAuthor.getText().toString();
         Title = mTitle.getText().toString();
@@ -183,8 +252,8 @@ public class Articles extends AppCompatActivity {
         mImageUrl.setText(Image);
 
         if (checkFields()) {
-            article = new Article(Author, Content, Date, Tagline, Image, Title, writerUID, Department);
-            mArticleRef.push().setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+            article = new Article(Uid,Author, Content, Date, Tagline, Image, Title, writerUID, Department);
+            mArticleRef.child(Uid).push().setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(Articles.this, "Article Uploaded!", Toast.LENGTH_LONG).show();
@@ -217,6 +286,7 @@ public class Articles extends AppCompatActivity {
         }
         return true;
     }
+
 
     private static String getCurrentTime() {
         Long time = System.currentTimeMillis();
