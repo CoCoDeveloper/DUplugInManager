@@ -5,28 +5,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
+    tools:context="com.cocodev.TDUCManager.Articles"
+    android:weightSum="1"
     >
+
 <LinearLayout
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.cocodev.TDUCManager.Articles"
-    android:weightSum="1">
+    >
 
-    <TextView
-        android:id="@+id/textView_article"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="24sp"
-        android:textAlignment="center"
-        android:text="Update Articles From Here!" />
     <EditText
         android:id="@+id/editText_article_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="8dp"
+        android:minLines="1"
         android:layout_marginRight="8dp"
         android:inputType="textPersonName"
         android:hint="Title"/>
@@ -35,6 +30,7 @@
         android:id="@+id/editText_tagline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minLines="1"
         android:layout_marginTop="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginLeft="8dp"
@@ -50,9 +46,10 @@
         android:layout_marginLeft="8dp"
         android:gravity="start"
         android:layout_marginRight="8dp"
-        android:inputType="textPersonName"
+        android:inputType="textMultiLine"
+        android:minLines="6"
         android:hint="Full Article"
-        android:layout_weight="0.50" />
+        android:layout_weight="0.60" />
     <EditText
         android:id="@+id/editText_author"
         android:layout_width="match_parent"
@@ -98,5 +95,10 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:text="Submit" />
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="8dp"
+        android:id="@+id/image_view_show_article"/>
 </LinearLayout>
 </ScrollView>
