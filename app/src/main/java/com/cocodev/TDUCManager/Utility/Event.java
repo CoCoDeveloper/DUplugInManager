@@ -9,17 +9,38 @@ public class Event {
     private String venue;
     private String time;
     private String Description;
+    private String department;
     private String url;
+    private String date;
     private String title;
 
     public Event(){}
 
-    public Event(String venue, String time, String description, String url,String title) {
+    public Event(String UID,String venue, String time, String description, String url,String title,String department,String date) {
+        this.UID = UID;
         this.venue = venue;
         this.time = time;
-        Description = description;
+        this.Description = description;
         this.url = url;
         this.title = title;
+        this.date = date;
+        this.department = department;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getUID() {
