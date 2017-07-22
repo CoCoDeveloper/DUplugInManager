@@ -22,7 +22,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class PostNotices extends AppCompatActivity {
+public class PostNotice extends AppCompatActivity {
     static int CHECKER = 0;
     DatabaseReference mNoticeRef;
     EditText mDesc,mDepartment,mDeadline;
@@ -69,7 +69,7 @@ public class PostNotices extends AppCompatActivity {
             mNoticeRef.push().setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(Notices.this, "Notice Uploaded!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostNotice.this, "Notice Uploaded!", Toast.LENGTH_SHORT).show();
                 }
             });
         }
