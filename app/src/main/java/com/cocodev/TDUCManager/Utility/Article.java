@@ -5,7 +5,7 @@ package com.cocodev.TDUCManager.Utility;
  */
 
 public class Article  {
-    private String UID;
+    private String uid;
     private String author;
     private String description;
     private String time;
@@ -14,6 +14,7 @@ public class Article  {
     private String title;
     private String writerUid;
     private String department;
+
     public Article(){
         //default Constructor
     }
@@ -28,8 +29,8 @@ public class Article  {
         this.writerUid = writerUid;
     }
 
-    public Article(String author, String description, String time, String tagLine, String imageUrl, String title, String writerUid, String department) {
-        this.UID = UID;
+    public Article(String UID,String author, String description, String time, String tagLine, String imageUrl, String title, String writerUid, String department) {
+        this.uid = UID;
         this.author = author;
         this.description = description;
         this.time = time;
@@ -73,11 +74,11 @@ public class Article  {
     }
 
     public String getUID() {
-        return UID;
+        return uid;
     }
 
     public void setUID(String UID) {
-        this.UID = UID;
+        this.uid = UID;
     }
 
     public String getTime() {
