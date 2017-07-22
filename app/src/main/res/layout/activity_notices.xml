@@ -3,28 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1"
+    tools:context="com.cocodev.TDUCManager.Notices">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:weightSum="1"
-        tools:context="com.cocodev.TDUCManager.PostNotice">
+   >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Upload Notices From Here!"
-            android:textAlignment="center"
-            android:textSize="24sp" />
 
         <EditText
             android:id="@+id/editText_notice_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
+            android:minLines="6"
+            android:inputType="textMultiLine"
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="0.80"
@@ -39,15 +35,28 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:hint="Department" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        <Button
+            android:id="@+id/button_datePicker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            android:text="Dead Line"/>
 
-        <EditText
-            android:id="@+id/editText_notice_deadline"
+        <TextView
+            android:id="@+id/textView_notice_deadline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
+            android:textSize="18dp"
             android:layout_marginTop="8dp"
             android:hint="Deadline" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/button_notice_submit"
