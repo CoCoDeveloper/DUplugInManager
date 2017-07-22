@@ -16,22 +16,32 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Event;
 import com.cocodev.TDUCManager.Utility.User;
+import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Events extends AppCompatActivity {
     ImageView imgView;
@@ -39,19 +49,23 @@ public class Events extends AppCompatActivity {
     Uri filePath;
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
-    EditText mTitle, mDesc, mVenue, mImageUrl;
+    EditText mTitle, mDesc, mVenue, mImageUrl,mDepartment;
     Button mSubmit, mImagePicker;
     Event event;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
+    String uid;
     String description;
     String time;
     String title;
     String image;
     String venue;
+    String department;
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
+
+    private static String DEFAULT_SPINNER_TEXT = "[Select a College..]";
 
     @Override
 
@@ -62,6 +76,7 @@ public class Events extends AppCompatActivity {
         actionBar.setTitle("Upload Events");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
+        initCollegeSpinner();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         progressDialog = new ProgressDialog(this);
@@ -71,6 +86,7 @@ public class Events extends AppCompatActivity {
         mDesc = (EditText) findViewById(R.id.editText_event_desc);
         mVenue = (EditText) findViewById(R.id.editText_event_venue);
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
+        mDepartment = (EditText)findViewById(R.id.edit_text_event_department);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
@@ -145,11 +161,15 @@ public class Events extends AppCompatActivity {
         time = getCurrentTime();
         title = mTitle.getText().toString();
         venue = mVenue.getText().toString();
+        department = mDepartment.getText().toString();
+        uid = mEventRef.push().getKey();
+
+
         mImageUrl.setText(image);
 
         if (checkFields()) {
-            event = new Event(venue, time, description, image, title);
-            mEventRef.push().setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+            event = new Event(uid,venue, time, description, image, title,department);
+            mEventRef.child(uid).push().setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
@@ -157,6 +177,38 @@ public class Events extends AppCompatActivity {
             });
         }
 
+    }
+    private void initCollegeSpinner() {
+        final Spinner collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
+        final ArrayList<String> colleges =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
+        collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.contact_spinner_row_nothing_selected,
+                this));
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges");
+
+        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String college = temp.getKey().toString();
+                    colleges.add(college);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+        collegeChoices.setOnItemSelectedListener(collegeSelectedListener);
     }
 
     private boolean checkFields() {
@@ -175,6 +227,25 @@ public class Events extends AppCompatActivity {
         }
         return true;
     }
+    AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            String college = (String) parent.getItemAtPosition(position);
+            if(college==DEFAULT_SPINNER_TEXT){
+                //remain GONE
+            }
+            else{
+                mDepartment.setVisibility(View.VISIBLE);
+                mDepartment.setText(college);
+            }
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+
+        }
+    };
 
     private static String getCurrentTime() {
         Long time = System.currentTimeMillis();
