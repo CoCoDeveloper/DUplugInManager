@@ -26,6 +26,21 @@
             android:layout_weight="0.80"
             android:gravity="start"
             android:hint="Description" />
+        <Spinner
+            android:id="@+id/spinner_college_notices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+
+            />
+        <Spinner
+            android:id="@+id/spinner_department_notices"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+            />
 
         <EditText
             android:id="@+id/editText_notice_department"
