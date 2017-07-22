@@ -7,16 +7,16 @@ package com.cocodev.TDUCManager.Utility;
 public class Event {
     private String UID;
     private String venue;
-    private String time;
+    private Long time;
     private String Description;
     private String department;
     private String url;
-    private String date;
+    private Long date;
     private String title;
 
     public Event(){}
 
-    public Event(String UID,String venue, String time, String description, String url,String title,String department,String date) {
+    public Event(String UID,String venue, Long time, String description, String url,String title,String department,Long date) {
 
         this.UID = UID;
         this.venue = venue;
@@ -28,11 +28,11 @@ public class Event {
         this.department = department;
     }
 
-    public String getDate() {
+    public Long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Long date) {
         this.date = date;
     }
 
@@ -60,11 +60,11 @@ public class Event {
         this.venue = venue;
     }
 
-    public String getTime() {
+    public Long getTime() {
         return time;
     }
 
-    public void setTime(String time) {
+    public void setTime(Long time) {
         this.time = time;
     }
 

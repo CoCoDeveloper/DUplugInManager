@@ -8,13 +8,13 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,8 +58,9 @@ public class Events extends AppCompatActivity {
     Uri filePath;
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
-    EditText mTitle, mDesc, mVenue, mImageUrl,mDepartment;
-
+    EditText mTitle, mDesc, mVenue, mImageUrl;
+    Spinner departmentChoices;
+    Spinner collegeChoices;
     TextView mDate;
     Button mSubmit, mImagePicker,mDatePicker;
 
@@ -71,7 +72,9 @@ public class Events extends AppCompatActivity {
     private Calendar calendar;
     private int day,month,year;
     private long epoch;
-    String uid,description,time,title,image,venue,department,date;
+    String uid,description,title,image,venue,department;
+    Long time,date;
+
 
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
@@ -89,7 +92,6 @@ public class Events extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
 
-        initCollegeSpinner();
 
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -98,18 +100,21 @@ public class Events extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
 
-        mEventRef = FirebaseDatabase.getInstance().getReference().child("events");
+        mEventRef = FirebaseDatabase.getInstance().getReference().child("Events");
 
         mTitle = (EditText) findViewById(R.id.editText_event_title);
         mDesc = (EditText) findViewById(R.id.editText_event_desc);
         mVenue = (EditText) findViewById(R.id.editText_event_venue);
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
-        mDepartment = (EditText)findViewById(R.id.edit_text_event_department);
+        departmentChoices = (Spinner)findViewById(R.id.spinner_event_department);
+        collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
         mDatePicker = (Button)findViewById(R.id.button_event_datePicker);
         mDate = (TextView)findViewById(R.id.textView_event_date);
+
+        initCollegeSpinner();
 
         calendar = Calendar.getInstance();
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -168,9 +173,12 @@ public class Events extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(getApplicationContext(), "Select an image", Toast.LENGTH_SHORT).show();
+            image = "";
+            bindData();
         }
     }
+
+
     @Override
     protected Dialog onCreateDialog(int id) {
         if(id==1337)
@@ -191,12 +199,8 @@ public class Events extends AppCompatActivity {
 
     private void showDate(int day, int month, int year)
     {
-        date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
+        String date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDate.setText(date);
-        epochGenerator();
-    }
-    private  void epochGenerator ()
-    {
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         try {
             Date date1 = (Date) format.parse(date);
@@ -206,7 +210,9 @@ public class Events extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -231,9 +237,12 @@ public class Events extends AppCompatActivity {
         time = getCurrentTime();
         title = mTitle.getText().toString();
         venue = mVenue.getText().toString();
-        department = mDepartment.getText().toString();
-
-        date = String.valueOf(epoch);
+        if(departmentChoices.getSelectedItemPosition()==0){
+            department="";
+        }else {
+            department = (String) departmentChoices.getSelectedItem();
+        }
+        date = epoch;
 
         uid = mEventRef.push().getKey();
 
@@ -244,25 +253,47 @@ public class Events extends AppCompatActivity {
 
             event = new Event(uid,venue, time, description, image, title,department,date);
 
-            mEventRef.child(uid).push().setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
+
+
+
+            if(collegeChoices.getSelectedItemPosition()>1){
+                FirebaseDatabase.getInstance().getReference().child("College Content")
+                        .child((String)collegeChoices.getSelectedItem())
+                        .child("Events")
+                        .child(uid)
+                        .setValue(event);
+
+
+                if(!department.equals("")){
+                    FirebaseDatabase.getInstance().getReference().child("College Content")
+                            .child((String)collegeChoices.getSelectedItem())
+                            .child("Department")
+                            .child(department)
+                            .child(uid)
+                            .setValue(uid);
                 }
-            });
+                Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
+            }else{
+                mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         }
 
     }
     private void initCollegeSpinner() {
-        final Spinner collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
+
         final ArrayList<String> colleges =new ArrayList<String>();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
         collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
                 arrayAdapter,
                 R.layout.contact_spinner_row_nothing_selected,
                 this));
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges");
-
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
+        arrayAdapter.add("University of Delhi");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -305,14 +336,13 @@ public class Events extends AppCompatActivity {
     AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-            String college = (String) parent.getItemAtPosition(position);
-            if(college==DEFAULT_SPINNER_TEXT){
-                //remain GONE
-            }
-            else{
-                mDepartment.setVisibility(View.VISIBLE);
-                mDepartment.setText(college);
+            Log.e("tag","Position  = " + Integer.toString(position));
+            if(position==0 || position==1){
+                departmentChoices.setVisibility(View.GONE);
+                departmentChoices.setSelection(0);
+            }else {
+                departmentChoices.setVisibility(View.VISIBLE);
+                initDepartmentSpinner();
             }
         }
 
@@ -322,10 +352,43 @@ public class Events extends AppCompatActivity {
         }
     };
 
-    private static String getCurrentTime() {
+    private void initDepartmentSpinner() {
+        final ArrayList<String> departments =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
+        departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.contact_spinner_row_nothing_selected_department,
+                this));
+
+        DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
+                .child((String)collegeChoices.getSelectedItem());
+
+        departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String department = temp.getKey().toString();
+                    departments.add(department);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+
+    }
+
+    private static Long getCurrentTime() {
         Long time = System.currentTimeMillis();
-        String ts = time.toString();
-        return ts;
+        return time;
     }
 
     @Override

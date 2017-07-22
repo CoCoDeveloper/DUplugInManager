@@ -99,7 +99,7 @@ public class PostNotice extends AppCompatActivity {
             mNoticeRef.push().setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(Notices.this, "Notice Uploaded!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostNotice.this, "Notice Uploaded!", Toast.LENGTH_SHORT).show();
                 }
             });
         }
