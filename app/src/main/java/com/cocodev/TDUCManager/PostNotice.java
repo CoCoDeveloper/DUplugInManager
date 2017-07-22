@@ -1,5 +1,7 @@
 package com.cocodev.TDUCManager;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -11,7 +13,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Notice;
@@ -22,19 +26,25 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class PostNotices extends AppCompatActivity {
-    static int CHECKER = 0;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+public class PostNotice extends AppCompatActivity {
     DatabaseReference mNoticeRef;
-    EditText mDesc,mDepartment,mDeadline;
-    Button mSubmit;
+    EditText mDesc,mDepartment;
+    TextView mDeadline;
+    Button mSubmit,mDatePicker;
     Notice notice;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
-    String description;
-    String department;
-    String deadline;
-    String time;
+    private String description,department,deadline,time,date;
+    private Calendar calendar;
+    private int day,month,year;
+    private long epoch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,25 +54,45 @@ public class PostNotices extends AppCompatActivity {
         actionBar.setTitle("Upload Notices");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
+
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
         mNoticeRef = FirebaseDatabase.getInstance().getReference().child("notice");
+
         mDesc = (EditText)findViewById(R.id.editText_notice_desc);
         mDepartment = (EditText)findViewById(R.id.editText_notice_department);
-        mDeadline = (EditText)findViewById(R.id.editText_notice_deadline);
+        mDeadline = (TextView)findViewById(R.id.textView_notice_deadline);
         mSubmit = (Button)findViewById(R.id.button_notice_submit);
+        mDatePicker = (Button)findViewById(R.id.button_datePicker);
+
+        calendar = Calendar.getInstance();
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+        month = calendar.get(Calendar.MONTH);
+        year = calendar.get(Calendar.YEAR);
+
+        showDate(day,month+1,year);
+
+        mDatePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog(999);
+            }
+        });
+
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 bindData();
             }
         });
+
     }
     private void bindData()
     {
         description = mDesc.getText().toString();
         department = mDepartment.getText().toString();
-        deadline = mDeadline.getText().toString();
+        deadline = String.valueOf(epoch);
         time = getCurrentTime();
         if(checkFields()) {
             notice = new Notice(department, time, deadline, description);
@@ -109,6 +139,42 @@ public class PostNotices extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        if(id==999)
+            return new DatePickerDialog(this,myDateListener,year,month,day);
+        return null;
+    }
+    private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+            /*
+            i = year
+            i1 = month
+            i2 = day
+             */
+            showDate(i2,i1+1,i);
+        }
+    };
+
+    private void showDate(int day, int month, int year)
+    {
+        date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
+        mDeadline.setText(date);
+        epochGenerator();
+    }
+    private  void epochGenerator ()
+    {
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+        try {
+            Date date1 = (Date) format.parse(date);
+            epoch =  date1.getTime();
+
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

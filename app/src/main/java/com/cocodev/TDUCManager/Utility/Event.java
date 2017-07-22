@@ -17,6 +17,7 @@ public class Event {
     public Event(){}
 
     public Event(String UID,String venue, String time, String description, String url,String title,String department,String date) {
+
         this.UID = UID;
         this.venue = venue;
         this.time = time;
