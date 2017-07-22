@@ -59,16 +59,20 @@ public class Events extends AppCompatActivity {
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl,mDepartment;
+
     TextView mDate;
     Button mSubmit, mImagePicker,mDatePicker;
+
     Event event;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
+
     private Calendar calendar;
     private int day,month,year;
     private long epoch;
     String uid,description,time,title,image,venue,department,date;
+
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
 
@@ -84,7 +88,9 @@ public class Events extends AppCompatActivity {
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+
         initCollegeSpinner();
+
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -226,14 +232,18 @@ public class Events extends AppCompatActivity {
         title = mTitle.getText().toString();
         venue = mVenue.getText().toString();
         department = mDepartment.getText().toString();
+
         date = String.valueOf(epoch);
+
         uid = mEventRef.push().getKey();
 
 
         mImageUrl.setText(image);
 
         if (checkFields()) {
+
             event = new Event(uid,venue, time, description, image, title,department,date);
+
             mEventRef.child(uid).push().setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
