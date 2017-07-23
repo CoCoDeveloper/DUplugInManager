@@ -45,6 +45,22 @@
         android:layout_marginLeft="8dp"
 
         />
+    <Spinner
+        android:id="@+id/spinner_department_articles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+
+        />
+    <Spinner
+        android:id="@+id/spinner_category_articles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+
+        />
 
     <EditText
         android:id="@+id/editText_article"
