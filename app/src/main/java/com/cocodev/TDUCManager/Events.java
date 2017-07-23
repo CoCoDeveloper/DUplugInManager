@@ -46,12 +46,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 
 public class Events extends AppCompatActivity {
@@ -161,6 +157,12 @@ public class Events extends AppCompatActivity {
     }
 
     private void uploadImage() {
+        description = mDesc.getText().toString();
+        time = getCurrentTime();
+        title = mTitle.getText().toString();
+        venue = mVenue.getText().toString();
+        if(!checkFields())
+            return;
         if (filePath != null) {
             progressDialog.show();
 
@@ -287,10 +289,7 @@ public class Events extends AppCompatActivity {
     }
 
     private void bindData() {
-        description = mDesc.getText().toString();
-        time = getCurrentTime();
-        title = mTitle.getText().toString();
-        venue = mVenue.getText().toString();
+
         if(departmentChoices.getSelectedItemPosition()==0){
             department="";
         }else {
@@ -320,6 +319,20 @@ public class Events extends AppCompatActivity {
                             .child(uid)
                             .setValue(uid);
                 }
+
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("College Content")
+                            .child((String) collegeChoices.getSelectedItem())
+                            .child("Categories")
+                            .child("Events")
+                            .child((String)categoryChoices.getSelectedItem())
+                            .child(uid)
+                            .setValue(uid);
+                }
+
+
+
                 Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
             }else{
                 mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -328,6 +341,13 @@ public class Events extends AppCompatActivity {
                         Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference().child("Cataegories")
+                            .child("Events")
+                            .child((String)categoryChoices.getSelectedItem())
+                            .child(uid)
+                            .setValue(uid);
+                }
             }
         }
 

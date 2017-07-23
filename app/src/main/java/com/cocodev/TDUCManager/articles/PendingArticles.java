@@ -144,7 +144,7 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
                         if (viewHolder.authorView != null) {
                             viewHolder.authorView.setText(article.getAuthor());
                         }
-                        viewHolder.timeView.setText(article.getTime());
+                        //viewHolder.timeView.setText(article.getTime());
                         viewHolder.titleView.setText(article.getTitle());
                         viewHolder.UID.setText(article.getUID());
                     }

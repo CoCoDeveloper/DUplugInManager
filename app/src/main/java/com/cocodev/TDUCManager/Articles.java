@@ -65,7 +65,7 @@ public class Articles extends AppCompatActivity {
     private String Author;
     private String Title;
     private String Content;
-    private String Date;
+
     private String Department;
     private String Image;
     private ArrayAdapter<String> collegeAdapter;
@@ -112,7 +112,7 @@ public class Articles extends AppCompatActivity {
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         writerUID = mFirebaseUser.getUid();
 
-        mArticleRef = FirebaseDatabase.getInstance().getReference().child("articles");
+        mArticleRef = FirebaseDatabase.getInstance().getReference().child("Articles");
 
         mTagline = (EditText) findViewById(R.id.editText_tagline);
         mTitle = (EditText) findViewById(R.id.editText_article_title);
@@ -152,6 +152,13 @@ public class Articles extends AppCompatActivity {
     }
 
     private void uploadImage() {
+        Uid = mArticleRef.push().getKey();
+        Tagline = mTagline.getText().toString();
+        Author = mAuthor.getText().toString();
+        Title = mTitle.getText().toString();
+        Content = mFullArticle.getText().toString();
+        if(!checkFields())
+            return;
         if (filePath != null) {
             progressDialog.show();
 
@@ -176,7 +183,7 @@ public class Articles extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(getApplicationContext(), "Select an image", Toast.LENGTH_SHORT).show();
+            bindData();
         }
     }
 
@@ -262,7 +269,6 @@ public class Articles extends AppCompatActivity {
                 R.layout.category_spinner_row_nothing_selected,
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Articles");
-        arrayAdapter.add("University of Delhi");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -321,11 +327,7 @@ public class Articles extends AppCompatActivity {
     }
 
     private void bindData() {
-        Uid = mArticleRef.push().getKey();
-        Tagline = mTagline.getText().toString();
-        Author = mAuthor.getText().toString();
-        Title = mTitle.getText().toString();
-        Content = mFullArticle.getText().toString();
+
 
         if(departmentChoices.getSelectedItemPosition()==0){
             Department="";
@@ -335,7 +337,7 @@ public class Articles extends AppCompatActivity {
         mImageUrl.setText(Image);
 
         if (checkFields()) {
-            article = new Article(Uid,Author, Content, Date, Tagline, Image, Title, writerUID, Department);
+            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department);
 
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
@@ -353,25 +355,40 @@ public class Articles extends AppCompatActivity {
                             .child(Uid)
                             .setValue(Uid);
                 }
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("College Content")
+                            .child((String)collegeChoices.getSelectedItem())
+                            .child("Categories")
+                            .child("Articles")
+                            .child((String)categoryChoices.getSelectedItem())
+                            .child(Uid)
+                            .setValue(Uid);
+                }
+
                 Toast.makeText(this,"Article Uploaded!",Toast.LENGTH_SHORT).show();
             }
             else {
-                mArticleRef.child(Uid).push().setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+                mArticleRef.child(Uid).setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(Articles.this, "Article Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference().child("Categories")
+                            .child("Articles")
+                            .child((String)categoryChoices.getSelectedItem())
+                            .child(Uid)
+                            .setValue(Uid);
+                }
             }
         }
 
     }
 
     private boolean checkFields() {
-        if (TextUtils.isEmpty(Tagline)) {
-            mTagline.setError("Field must not be empty");
-            return false;
-        }
+
         if (TextUtils.isEmpty(Author)) {
             mAuthor.setError("Field must not be empty");
             return false;
@@ -384,10 +401,7 @@ public class Articles extends AppCompatActivity {
             mFullArticle.setError("Field must not be empty");
             return false;
         }
-        if (TextUtils.isEmpty(Department)) {
-            mDepartment.setError("Field must not be empty");
-            return false;
-        }
+
         return true;
     }
 

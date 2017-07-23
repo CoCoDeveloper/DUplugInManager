@@ -69,7 +69,7 @@ public class Article_details extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 article = dataSnapshot.getValue(Article.class);
 
-                timeView.setText(article.getTime());
+                //timeView.setText(article.getTime());
                 titleView.setText(article.getTitle());
                 authorView.setText(article.getAuthor());
                 descriptionView.setText(article.getDescription());
