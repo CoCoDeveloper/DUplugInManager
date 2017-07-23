@@ -54,8 +54,9 @@ public class Articles extends AppCompatActivity {
     Button mSubmit, mImagePicker;
     FirebaseUser user;
     String writerUID;
-    Spinner departmentChoices;
-    Spinner collegeChoices;
+
+    Spinner departmentChoices,collegeChoices,categoryChoices;
+
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
@@ -123,8 +124,12 @@ public class Articles extends AppCompatActivity {
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_articles);
         departmentChoices = (Spinner) findViewById(R.id.spinner_department_articles);
 
+        categoryChoices = (Spinner) findViewById(R.id.spinner_category_articles);
+
 
         initCollegeSpinner();
+        initCategorySpinner();
+
 
         mImagePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -247,6 +252,40 @@ public class Articles extends AppCompatActivity {
 
         }
     };
+
+    private void initCategorySpinner() {
+
+        final ArrayList<String> category =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,category);
+        categoryChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.category_spinner_row_nothing_selected,
+                this));
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Articles");
+        arrayAdapter.add("University of Delhi");
+        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String college = temp.getKey().toString();
+                    category.add(college);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+        // TODO :categoryChoices.setOnItemSelectedListener(categorySelectedListener);
+    }
+
     private void initDepartmentSpinner() {
         final ArrayList<String> departments =new ArrayList<String>();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
