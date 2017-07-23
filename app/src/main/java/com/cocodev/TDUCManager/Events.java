@@ -61,9 +61,11 @@ public class Events extends AppCompatActivity {
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
+
     Spinner departmentChoices,collegeChoices,categoryChoices;
     TextView mDate,mTime;
     Button mSubmit, mImagePicker,mDatePicker,mTimePicker;
+
     Event event;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
