@@ -12,6 +12,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -53,6 +54,8 @@ public class Articles extends AppCompatActivity {
     Button mSubmit, mImagePicker;
     FirebaseUser user;
     String writerUID;
+    Spinner departmentChoices;
+    Spinner collegeChoices;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
@@ -99,14 +102,17 @@ public class Articles extends AppCompatActivity {
         actionBar.setTitle("Upload Articles");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
-        initCollegeSpinner();
+
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
+
         user = FirebaseAuth.getInstance().getCurrentUser();
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         writerUID = mFirebaseUser.getUid();
+
         mArticleRef = FirebaseDatabase.getInstance().getReference().child("articles");
+
         mTagline = (EditText) findViewById(R.id.editText_tagline);
         mTitle = (EditText) findViewById(R.id.editText_article_title);
         mFullArticle = (EditText) findViewById(R.id.editText_article);
@@ -114,6 +120,12 @@ public class Articles extends AppCompatActivity {
         mImageUrl = (EditText) findViewById(R.id.editText_image);
         imgView = (ImageView) findViewById(R.id.image_view_show_article);
         mImagePicker = (Button) findViewById(R.id.button_image_picker);
+        collegeChoices = (Spinner) findViewById(R.id.spinner_college_articles);
+        departmentChoices = (Spinner) findViewById(R.id.spinner_department_articles);
+
+
+        initCollegeSpinner();
+
         mImagePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,6 +135,7 @@ public class Articles extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
             }
         });
+
         mSubmit = (Button) findViewById(R.id.button_submit);
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -182,30 +195,31 @@ public class Articles extends AppCompatActivity {
     }
 
     private void initCollegeSpinner() {
-        final Spinner collegeChoices = (Spinner) findViewById(R.id.spinner_college_articles);
-        final ArrayList<String> colleges = new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, colleges);
+
+        final ArrayList<String> colleges =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
         collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
                 arrayAdapter,
                 R.layout.contact_spinner_row_nothing_selected,
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
 
+        arrayAdapter.add("University of Delhi");
+
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while (iterator.hasNext()) {
+                while(iterator.hasNext()){
                     DataSnapshot temp = iterator.next();
                     //get name of the department
-                    String department = temp.getKey().toString();
-                    colleges.add(department);
+                    String college = temp.getKey().toString();
+                    colleges.add(college);
                     //to reflect changes in the ui
                     arrayAdapter.notifyDataSetChanged();
                     //collegeChoices.setSelection(arrayAdapter.getPosition(department));
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //We will see this later
@@ -218,13 +232,13 @@ public class Articles extends AppCompatActivity {
     AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-            String college = (String) parent.getItemAtPosition(position);
-            if(college==DEFAULT_SPINNER_TEXT){
-                //remain GONE
-            }
-                else{
-                mDepartment.setVisibility(View.VISIBLE);
+            Log.e("tag","Position  = " + Integer.toString(position));
+            if(position==0 || position==1){
+                departmentChoices.setVisibility(View.GONE);
+                departmentChoices.setSelection(0);
+            }else {
+                departmentChoices.setVisibility(View.VISIBLE);
+                initDepartmentSpinner();
             }
         }
 
@@ -233,6 +247,39 @@ public class Articles extends AppCompatActivity {
 
         }
     };
+    private void initDepartmentSpinner() {
+        final ArrayList<String> departments =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
+        departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.contact_spinner_row_nothing_selected_department,
+                this));
+
+        DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
+                .child((String)collegeChoices.getSelectedItem());
+
+        departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String department = temp.getKey().toString();
+                    departments.add(department);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+
+    }
 
     private void bindData() {
         Uid = mArticleRef.push().getKey();
@@ -240,18 +287,43 @@ public class Articles extends AppCompatActivity {
         Author = mAuthor.getText().toString();
         Title = mTitle.getText().toString();
         Content = mFullArticle.getText().toString();
-        Date = getCurrentTime();
-        Department = mDepartment.getText().toString();
+
+        if(departmentChoices.getSelectedItemPosition()==0){
+            Department="";
+        }else {
+            Department = (String) departmentChoices.getSelectedItem();
+        }
         mImageUrl.setText(Image);
 
         if (checkFields()) {
             article = new Article(Uid,Author, Content, Date, Tagline, Image, Title, writerUID, Department);
-            mArticleRef.child(Uid).push().setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(Articles.this, "Article Uploaded!", Toast.LENGTH_LONG).show();
+
+            if(collegeChoices.getSelectedItemPosition()>1){
+                FirebaseDatabase.getInstance().getReference().child("College Content")
+                        .child((String)collegeChoices.getSelectedItem())
+                        .child("Articles")
+                        .child(Uid)
+                        .setValue(article);
+
+
+                if(!Department.equals("")){
+                    FirebaseDatabase.getInstance().getReference().child("College Content")
+                            .child((String)collegeChoices.getSelectedItem())
+                            .child("Department")
+                            .child(Department)
+                            .child(Uid)
+                            .setValue(Uid);
                 }
-            });
+                Toast.makeText(this,"Article Uploaded!",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                mArticleRef.child(Uid).push().setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(Articles.this, "Article Uploaded!", Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
         }
 
     }
