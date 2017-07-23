@@ -61,8 +61,8 @@ public class Events extends AppCompatActivity {
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
-    Spinner departmentChoices;
-    Spinner collegeChoices;
+
+    Spinner departmentChoices,collegeChoices,categoryChoices;
     TextView mDate,mTime;
     Button mSubmit, mImagePicker,mDatePicker,mTimePicker;
 
@@ -70,7 +70,6 @@ public class Events extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
-
     private Calendar calendar;
     private int day,month,year,hour,minute;
     private long epoch,timeEpoch;
@@ -108,6 +107,7 @@ public class Events extends AppCompatActivity {
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
         departmentChoices = (Spinner)findViewById(R.id.spinner_event_department);
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
+        categoryChoices = (Spinner) findViewById(R.id.spinner_event_category);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
@@ -117,6 +117,7 @@ public class Events extends AppCompatActivity {
         mTime = (TextView)findViewById(R.id.textView_event_time);
 
         initCollegeSpinner();
+        initCategorySpinner();
 
         calendar = Calendar.getInstance();
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -251,6 +252,38 @@ public class Events extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+    private void initCategorySpinner() {
+
+        final ArrayList<String> category =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,category);
+        categoryChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.category_spinner_row_nothing_selected,
+                this));
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
+        arrayAdapter.add("University of Delhi");
+        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String college = temp.getKey().toString();
+                    category.add(college);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+       // TODO :categoryChoices.setOnItemSelectedListener(categorySelectedListener);
     }
 
     private void bindData() {
