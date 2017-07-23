@@ -3,6 +3,7 @@ package com.cocodev.TDUCManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -26,6 +27,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Event;
@@ -59,19 +61,18 @@ public class Events extends AppCompatActivity {
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
-    Spinner departmentChoices;
-    Spinner collegeChoices;
-    TextView mDate;
-    Button mSubmit, mImagePicker,mDatePicker;
+
+    Spinner departmentChoices,collegeChoices,categoryChoices;
+    TextView mDate,mTime;
+    Button mSubmit, mImagePicker,mDatePicker,mTimePicker;
 
     Event event;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
-
     private Calendar calendar;
-    private int day,month,year;
-    private long epoch;
+    private int day,month,year,hour,minute;
+    private long epoch,timeEpoch;
     String uid,description,title,image,venue,department;
     Long time,date;
 
@@ -92,8 +93,6 @@ public class Events extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
 
-
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
@@ -108,13 +107,17 @@ public class Events extends AppCompatActivity {
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
         departmentChoices = (Spinner)findViewById(R.id.spinner_event_department);
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
+        categoryChoices = (Spinner) findViewById(R.id.spinner_event_category);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
         mDatePicker = (Button)findViewById(R.id.button_event_datePicker);
         mDate = (TextView)findViewById(R.id.textView_event_date);
+        mTimePicker = (Button)findViewById(R.id.button_event_timePicker);
+        mTime = (TextView)findViewById(R.id.textView_event_time);
 
         initCollegeSpinner();
+        initCategorySpinner();
 
         calendar = Calendar.getInstance();
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -127,6 +130,16 @@ public class Events extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 showDialog(1337);
+            }
+        });
+
+        mTimePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar c = Calendar.getInstance();
+                hour = c.get(Calendar.HOUR_OF_DAY);
+                minute = c.get(Calendar.MINUTE);
+                showDialog(1338);
             }
         });
 
@@ -178,11 +191,21 @@ public class Events extends AppCompatActivity {
         }
     }
 
+    private void showTime(int hour, int minute)
+    {
+        String time  = new StringBuilder().append(hour).append(":").append(minute).toString();
+        calendar.set(year,month,day,hour,minute);
+        epoch =  calendar.getTimeInMillis();
+        mTime.setText(String.valueOf(time));
+    }
+
 
     @Override
     protected Dialog onCreateDialog(int id) {
         if(id==1337)
             return new DatePickerDialog(this,myDateListener,year,month,day);
+        if(id==1338)
+            return new TimePickerDialog(this,myTimeListener,hour,minute,true);
         return null;
     }
     private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
@@ -196,21 +219,21 @@ public class Events extends AppCompatActivity {
             showDate(i2,i1+1,i);
         }
     };
+    private  TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+            /*
+            i = hour
+            i1 = minute
+             */
+            showTime(i,i1);
+        }
+    };
 
     private void showDate(int day, int month, int year)
     {
         String date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDate.setText(date);
-        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        try {
-            Date date1 = (Date) format.parse(date);
-            epoch =  date1.getTime();
-
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
     }
 
     @Override
@@ -223,13 +246,44 @@ public class Events extends AppCompatActivity {
             try {
                 //getting image from gallery
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-
                 //Setting image to ImageView
                 imgView.setImageBitmap(bitmap);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+    private void initCategorySpinner() {
+
+        final ArrayList<String> category =new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,category);
+        categoryChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+                arrayAdapter,
+                R.layout.category_spinner_row_nothing_selected,
+                this));
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
+        arrayAdapter.add("University of Delhi");
+        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+                while(iterator.hasNext()){
+                    DataSnapshot temp = iterator.next();
+                    //get name of the department
+                    String college = temp.getKey().toString();
+                    category.add(college);
+                    //to reflect changes in the ui
+                    arrayAdapter.notifyDataSetChanged();
+                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //We will see this later
+
+            }
+        });
+       // TODO :categoryChoices.setOnItemSelectedListener(categorySelectedListener);
     }
 
     private void bindData() {
@@ -243,18 +297,12 @@ public class Events extends AppCompatActivity {
             department = (String) departmentChoices.getSelectedItem();
         }
         date = epoch;
-
         uid = mEventRef.push().getKey();
-
-
         mImageUrl.setText(image);
 
         if (checkFields()) {
 
             event = new Event(uid,venue, time, description, image, title,department,date);
-
-
-
 
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
