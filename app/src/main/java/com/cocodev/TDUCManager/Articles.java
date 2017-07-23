@@ -2,20 +2,15 @@ package com.cocodev.TDUCManager;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
-import android.nfc.Tag;
-import android.preference.PreferenceManager;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,7 +40,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 
 public class Articles extends AppCompatActivity {
@@ -117,7 +111,6 @@ public class Articles extends AppCompatActivity {
         mTitle = (EditText) findViewById(R.id.editText_article_title);
         mFullArticle = (EditText) findViewById(R.id.editText_article);
         mAuthor = (EditText) findViewById(R.id.editText_author);
-        mDepartment = (EditText) findViewById(R.id.editText_department);
         mImageUrl = (EditText) findViewById(R.id.editText_image);
         imgView = (ImageView) findViewById(R.id.image_view_show_article);
         mImagePicker = (Button) findViewById(R.id.button_image_picker);
@@ -196,7 +189,7 @@ public class Articles extends AppCompatActivity {
                 arrayAdapter,
                 R.layout.contact_spinner_row_nothing_selected,
                 this));
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges");
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
 
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

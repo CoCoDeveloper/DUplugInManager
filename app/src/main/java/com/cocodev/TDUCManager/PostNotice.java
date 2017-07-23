@@ -5,9 +5,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -53,7 +53,8 @@ public class PostNotice extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
-    private String uid,description,department,deadline,time,date;
+    private String uid,description,department,date;
+    Long time,deadline;
     private Calendar calendar;
     private int day,month,year;
     private long epoch;
@@ -73,14 +74,15 @@ public class PostNotice extends AppCompatActivity {
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
-        mNoticeRef = FirebaseDatabase.getInstance().getReference().child("notice");
+        mNoticeRef = FirebaseDatabase.getInstance().getReference().child("Notices");
 
         mDesc = (EditText)findViewById(R.id.editText_notice_desc);
-        mDepartment = (EditText)findViewById(R.id.editText_notice_department);
+
         mDeadline = (TextView)findViewById(R.id.textView_notice_deadline);
         mSubmit = (Button)findViewById(R.id.button_notice_submit);
-        departmentChoices = (Spinner)findViewById(R.id.spinner_college_notices);
         collegeChoices = (Spinner) findViewById(R.id.spinner_department_notices);
+        departmentChoices = (Spinner)findViewById(R.id.spinner_college_notices);
+
         mDatePicker = (Button)findViewById(R.id.button_datePicker);
 
         initCollegeSpinner();
@@ -110,16 +112,15 @@ public class PostNotice extends AppCompatActivity {
     private void bindData()
     {
         description = mDesc.getText().toString();
-        department = mDepartment.getText().toString();
-        deadline = String.valueOf(epoch);
+        deadline = epoch;
         if(departmentChoices.getSelectedItemPosition()==0){
             department="";
         }else {
             department = (String) departmentChoices.getSelectedItem();
         }
         uid = mNoticeRef.push().getKey();
-        time = getCurrentTime();
-        if(checkFields()) {
+        time = System.currentTimeMillis();
+       if(checkFields()) {
             notice = new Notice(department, time, deadline, description);
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
@@ -146,22 +147,19 @@ public class PostNotice extends AppCompatActivity {
                     }
                 });
             }
-            mNoticeRef.push().setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Toast.makeText(PostNotice.this, "Notice Uploaded!", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+
+       }
 
     }
+
+
     AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             Log.e("tag","Position  = " + Integer.toString(position));
             if(position==0 || position==1){
                 departmentChoices.setVisibility(View.GONE);
-                departmentChoices.setSelection(0);
+
             }else {
                 departmentChoices.setVisibility(View.VISIBLE);
                 initDepartmentSpinner();
@@ -245,14 +243,8 @@ public class PostNotice extends AppCompatActivity {
             mDesc.setError("Field must not be empty");
             return false;
         }
-        if(TextUtils.isEmpty(department)) {
-            mDepartment.setError("Field must not be empty");
-            return false;
-        }
-        if(TextUtils.isEmpty(deadline)) {
-            mDeadline.setError("Field must not be empty");
-            return false;
-        }
+
+
         return true;
 
     }
@@ -294,12 +286,9 @@ public class PostNotice extends AppCompatActivity {
 
     private void showDate(int day, int month, int year)
     {
-        date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
+
+        String date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDeadline.setText(date);
-        epochGenerator();
-    }
-    private  void epochGenerator ()
-    {
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         try {
             Date date1 = (Date) format.parse(date);
@@ -309,7 +298,11 @@ public class PostNotice extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
     }
+
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
