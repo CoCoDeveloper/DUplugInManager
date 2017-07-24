@@ -342,7 +342,7 @@ public class Events extends AppCompatActivity {
                     }
                 });
                 if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference().child("Cataegories")
+                    FirebaseDatabase.getInstance().getReference().child("Categories")
                             .child("Events")
                             .child((String)categoryChoices.getSelectedItem())
                             .child(uid)
