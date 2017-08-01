@@ -17,6 +17,7 @@ public class Notice {
         //default constructor
     }
 
+
     public Notice(String UID,String title,String department, Long time, Long deadline, String description) {
         this.UID = UID;
         this.title = title;

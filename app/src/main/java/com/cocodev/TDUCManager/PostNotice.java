@@ -44,7 +44,7 @@ import java.util.Iterator;
 
 public class PostNotice extends AppCompatActivity {
     DatabaseReference mNoticeRef;
-    EditText mDesc,mDepartment;
+    EditText mDesc,mTitle;
     TextView mDeadline;
     Button mSubmit,mDatePicker;
     Notice notice;
@@ -53,7 +53,7 @@ public class PostNotice extends AppCompatActivity {
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
-    private String uid,description,department,date;
+    private String uid,description,department,date,title;
     Long time,deadline;
     private Calendar calendar;
     private int day,month,year;
@@ -82,6 +82,7 @@ public class PostNotice extends AppCompatActivity {
         mSubmit = (Button)findViewById(R.id.button_notice_submit);
         collegeChoices = (Spinner) findViewById(R.id.spinner_department_notices);
         departmentChoices = (Spinner)findViewById(R.id.spinner_college_notices);
+        mTitle  = (EditText) findViewById(R.id.editText_notice_title);
 
         mDatePicker = (Button)findViewById(R.id.button_datePicker);
 
@@ -111,6 +112,7 @@ public class PostNotice extends AppCompatActivity {
     }
     private void bindData()
     {
+        title = mTitle.getText().toString();
         description = mDesc.getText().toString();
         deadline = epoch;
         if(departmentChoices.getSelectedItemPosition()==0){
@@ -121,7 +123,9 @@ public class PostNotice extends AppCompatActivity {
         uid = mNoticeRef.push().getKey();
         time = System.currentTimeMillis();
        if(checkFields()) {
-            notice = new Notice(department, time, deadline, description);
+
+            notice = new Notice(uid,title,department, time, deadline, description);
+
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
                         .child((String)collegeChoices.getSelectedItem())
