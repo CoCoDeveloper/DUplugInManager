@@ -123,7 +123,9 @@ public class PostNotice extends AppCompatActivity {
         uid = mNoticeRef.push().getKey();
         time = System.currentTimeMillis();
        if(checkFields()) {
+
             notice = new Notice(uid,title,department, time, deadline, description);
+
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
                         .child((String)collegeChoices.getSelectedItem())
