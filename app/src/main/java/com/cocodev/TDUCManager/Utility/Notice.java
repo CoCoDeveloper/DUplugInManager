@@ -8,6 +8,7 @@ public class Notice {
 
     private String UID;
     private String department;
+    private String title;
     private Long time;
     private Long deadline;
     private String description;
@@ -16,11 +17,20 @@ public class Notice {
         //default constructor
     }
 
-    public Notice(String department, Long time, Long deadline, String description) {
+    public Notice(String title,String department, Long time, Long deadline, String description) {
+        this.title = title;
         this.department = department;
         this.time = time;
         this.deadline = deadline;
         this.description = description;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDepartment() {
