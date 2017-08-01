@@ -53,7 +53,8 @@ import java.util.Iterator;
 public class Events extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
-    Uri filePath;
+    Uri filePath = null;
+
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
@@ -71,7 +72,6 @@ public class Events extends AppCompatActivity {
     private long epoch,timeEpoch;
     String uid,description,title,image,venue,department;
     Long time,date;
-
 
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
@@ -119,8 +119,11 @@ public class Events extends AppCompatActivity {
         day = calendar.get(Calendar.DAY_OF_MONTH);
         month = calendar.get(Calendar.MONTH);
         year = calendar.get(Calendar.YEAR);
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+        minute = calendar.get(Calendar.MINUTE);
 
         showDate(day,month+1,year);
+        showTime(hour,minute);
 
         mDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,9 +135,6 @@ public class Events extends AppCompatActivity {
         mTimePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final Calendar c = Calendar.getInstance();
-                hour = c.get(Calendar.HOUR_OF_DAY);
-                minute = c.get(Calendar.MINUTE);
                 showDialog(1338);
             }
         });
@@ -161,6 +161,8 @@ public class Events extends AppCompatActivity {
         time = getCurrentTime();
         title = mTitle.getText().toString();
         venue = mVenue.getText().toString();
+        if(filePath == null)
+        image = mImageUrl.getText().toString();
         if(!checkFields())
             return;
         if (filePath != null) {
@@ -169,8 +171,6 @@ public class Events extends AppCompatActivity {
             StorageReference childRef = storageReference.child("Events").child(filePath.getLastPathSegment());
             //uploading the image
             UploadTask uploadTask = childRef.putFile(filePath);
-
-
             uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -188,26 +188,22 @@ public class Events extends AppCompatActivity {
                 }
             });
         } else {
-            image = "";
+            //image = "";
             bindData();
         }
     }
-
     private void showTime(int hour, int minute)
     {
         String time  = new StringBuilder().append(hour).append(":").append(minute).toString();
-        calendar.set(year,month,day,hour,minute);
         epoch =  calendar.getTimeInMillis();
         mTime.setText(String.valueOf(time));
     }
-
-
     @Override
     protected Dialog onCreateDialog(int id) {
         if(id==1337)
             return new DatePickerDialog(this,myDateListener,year,month,day);
         if(id==1338)
-            return new TimePickerDialog(this,myTimeListener,hour,minute,true);
+            return new TimePickerDialog(this,myTimeListener,hour,minute,false);
         return null;
     }
     private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
@@ -218,6 +214,10 @@ public class Events extends AppCompatActivity {
             i1 = month
             i2 = day
              */
+            year = i;
+            month = i1;
+            day = i2;
+            calendar.set(i,i1,i2);
             showDate(i2,i1+1,i);
         }
     };
@@ -228,16 +228,16 @@ public class Events extends AppCompatActivity {
             i = hour
             i1 = minute
              */
+            calendar.set(year,month,day,i,i1);
             showTime(i,i1);
+
         }
     };
-
     private void showDate(int day, int month, int year)
     {
         String date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDate.setText(date);
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -297,6 +297,7 @@ public class Events extends AppCompatActivity {
         }
         date = epoch;
         uid = mEventRef.push().getKey();
+
         mImageUrl.setText(image);
 
         if (checkFields()) {
@@ -330,8 +331,6 @@ public class Events extends AppCompatActivity {
                             .child(uid)
                             .setValue(uid);
                 }
-
-
 
                 Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
             }else{
