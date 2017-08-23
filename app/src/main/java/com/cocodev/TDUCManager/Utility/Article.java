@@ -14,12 +14,13 @@ public class Article  {
     private String title;
     private String writerUid;
     private String department;
+    private String collegeName;
 
     public Article(){
         //default Constructor
     }
 
-    public Article(String author, String description, long time, String tagLine, String imageUrl,String title,String writerUid) {
+    public Article(String author, String description, long time, String tagLine, String imageUrl,String title,String writerUid,String collegeName) {
         this.author = author;
         this.description = description;
         this.time = time;
@@ -27,9 +28,10 @@ public class Article  {
         this.imageUrl = imageUrl;
         this.title = title;
         this.writerUid = writerUid;
+        this.collegeName = collegeName;
     }
 
-    public Article(String UID,String author, String description, long time, String tagLine, String imageUrl, String title, String writerUid, String department) {
+    public Article(String UID,String author, String description, long time, String tagLine, String imageUrl, String title, String writerUid, String department,String collegeName) {
         this.uid = UID;
         this.author = author;
         this.description = description;
@@ -39,6 +41,7 @@ public class Article  {
         this.title = title;
         this.writerUid = writerUid;
         this.department = department;
+        this.collegeName = collegeName;
     }
 
     public String getDepartment() {
@@ -73,12 +76,12 @@ public class Article  {
         this.description = description;
     }
 
-    public String getUID() {
+    public String getUid() {
         return uid;
     }
 
-    public void setUID(String UID) {
-        this.uid = UID;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public long getTime() {
@@ -115,6 +118,15 @@ public class Article  {
 
     @Override
     public boolean equals(Object obj) {
-        return getUID()==((Article) obj).getUID();
+        return getUid()==((Article) obj).getUid();
+    }
+
+    public String getCollegeName() {
+        return collegeName;
+    }
+
+    public void setCollegeName(String collegeName) {
+        this.collegeName = collegeName;
     }
 }
+

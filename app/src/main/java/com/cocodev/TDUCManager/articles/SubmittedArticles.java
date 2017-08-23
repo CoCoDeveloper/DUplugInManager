@@ -134,23 +134,24 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
             @Override
             protected void populateView(View v, EmployeeContentArticle model, int position) {
                 final CustomArticleHolderAdapter.ViewHolder viewHolder = (ViewHolder) v.getTag();
+                DatabaseReference dbref;
+                DatabaseReference dbref2;
+                int status = model.getStatus();
+                viewHolder.status.setText(Integer.toString(status));
 
 
-                DatabaseReference dbref = firebaseDatabase.getReference().child("PendingArticles")
-                        .child(MainActivity.CollegeName);
-
-                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
+                ValueEventListener valueEventListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         Article article = dataSnapshot.getValue(Article.class);
-                        if (article == null)
+                        if (article == null) {
                             return;
+                        }
                         if (viewHolder.authorView != null) {
                             viewHolder.authorView.setText(article.getAuthor());
                         }
-                       // viewHolder.timeView.setText(article.getTime());
                         viewHolder.titleView.setText(article.getTitle());
-                        viewHolder.UID.setText(article.getUID());
+                        viewHolder.UID.setText(article.getUid());
                     }
 
                     @Override
@@ -158,8 +159,25 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
                         Toast.makeText(getContext(), "There has been some problem establishing connection with the server.", Toast.LENGTH_SHORT).show();
 
                     }
-                });
+                };
+
+                if(model.getStatus()==0){
+                    dbref = firebaseDatabase.getReference().child("PendingArticles")
+                            .child(MainActivity.CollegeName).child("Pending").child(model.getA_Uid());
+                }else if(model.getStatus()==-1){
+                    dbref = firebaseDatabase.getReference().child("PendingArticles")
+                            .child(MainActivity.CollegeName).child("Rejected").child(model.getA_Uid());
+                }else{
+                    dbref = firebaseDatabase.getReference().child("Articles").child(model.getA_Uid());
+                    dbref2 = firebaseDatabase.getReference().child("College Content").child(MainActivity.CollegeName).child("Articles").child(model.getA_Uid());
+                    dbref2.addListenerForSingleValueEvent(valueEventListener);
+                }
+                dbref.addListenerForSingleValueEvent(valueEventListener);
+
+
+
             }
+
         };
 
         mListView.setAdapter(mAdapter);
@@ -174,8 +192,10 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String UID = (String) ((TextView) view.findViewById(R.id.article_UID)).getText();
+            int status = ((EmployeeContentArticle)(mAdapter.getItem(position))).getStatus();
             Intent intent = new Intent(getContext(), Article_details.class);
             intent.putExtra(Article_details.key, UID);
+            intent.putExtra(Article_details.key_status,0);
             Pair<View, String> pair1 = Pair.create(view.findViewById(R.id.articleImage), getString(R.string.home_share_image));
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     getActivity(),

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -30,7 +31,7 @@ import com.squareup.leakcanary.RefWatcher;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static String CollegeName;
-
+    private final String KEY_CLEARENCE_LEVEL = "key_clearence_level";
     private final int REQUEST_CODE_SETTINGS_ACTIVITY = 1001;
     String[] submenus = {"Articles","PostNotice","SubmitEvent"};
     private String CURRENT_FRAGMENT = "currentFragment";
@@ -63,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -71,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mProgressDialog = new ProgressDialog(this);
+
+
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         menu = navigationView.getMenu();
@@ -96,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setCollegeName() {
-        SharedPreferences sharedPreferences = getSharedPreferences(SA.fileName_HP, Context.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         CollegeName = sharedPreferences.getString(SA.KEY_COLLEGE,"");
     }
 

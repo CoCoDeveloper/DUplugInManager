@@ -1,5 +1,6 @@
 package com.cocodev.TDUCManager.articles;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +17,6 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Article_details;
 import com.cocodev.TDUCManager.Articles;
@@ -25,15 +25,11 @@ import com.cocodev.TDUCManager.MainActivity;
 import com.cocodev.TDUCManager.PostNotice;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Article;
-import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
 import com.cocodev.TDUCManager.pArticleDetails;
 import com.github.clans.fab.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 
 public class PendingArticles extends Fragment implements AbsListView.OnScrollListener {
@@ -120,41 +116,43 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
 
         //if this is the home page else ...
 
-        mAdapter = new CustomArticleHolderAdapter<EmployeeContentArticle>(
+        mAdapter = new CustomArticleHolderAdapter<Article>(
                 getActivity(),
-                EmployeeContentArticle.class,
+                Article.class,
                 0,
                 new DatabaseReference[]{databaseReference}
         ) {
 
             @Override
-            protected void populateView(View v, EmployeeContentArticle model, int position) {
+            protected void populateView(View v, Article model, int position) {
                 final CustomArticleHolderAdapter.ViewHolder viewHolder = (ViewHolder) v.getTag();
+                viewHolder.titleView.setText(model.getTitle());
+                viewHolder.UID.setText(model.getUid());
 
+            }
 
-                DatabaseReference dbref = firebaseDatabase.getReference().child("PendingArticles")
-                        .child(MainActivity.CollegeName);
+            @Override
+            public int getItemViewType(int position) {
+                return 0;
+            }
 
-                dbref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Article article = dataSnapshot.getValue(Article.class);
-                        if (article == null)
-                            return;
-                        if (viewHolder.authorView != null) {
-                            viewHolder.authorView.setText(article.getAuthor());
-                        }
-                        //viewHolder.timeView.setText(article.getTime());
-                        viewHolder.titleView.setText(article.getTitle());
-                        viewHolder.UID.setText(article.getUID());
-                    }
+            @Override
+            public View newView(Context context, int position, ViewGroup parent) {
+                int viewType = getItemViewType(position);
+                int layoutID = -1;
+                if(viewType==0){
+                    layoutID = R.layout.article_list_view_second_pending;
+                }else if(viewType==1){
+                    layoutID = R.layout.article_list_view_second;
+                }else{
+                    layoutID = R.layout.article_list_view_second_rejected;
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(getContext(), "There has been some problem establishing connection with the server.", Toast.LENGTH_SHORT).show();
+                View view = LayoutInflater.from(context).inflate(layoutID,parent,false);
+                ViewHolder viewHolder = new ViewHolder(view);
+                view.setTag(viewHolder);
+                return view;
 
-                    }
-                });
             }
         };
 
@@ -170,8 +168,11 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             String UID = (String) ((TextView) view.findViewById(R.id.article_UID)).getText();
+
             Intent intent = new Intent(getContext(),pArticleDetails.class);
             intent.putExtra(Article_details.key, UID);
+            intent.putExtra(Article_details.key_status,0);
+
             Pair<View, String> pair1 = Pair.create(view.findViewById(R.id.articleImage), getString(R.string.home_share_image));
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
                     getActivity(),

@@ -25,6 +25,8 @@ public class pArticleDetails extends AppCompatActivity {
 
     private Article article;
     public static final String key = "article";
+    public static final String key_status = "article_status";
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -62,13 +64,15 @@ public class pArticleDetails extends AppCompatActivity {
         ImageView imageView = (ImageView) findViewById(R.id.articleImage);
 
 
-        DatabaseReference reference =FirebaseDatabase.getInstance().getReference().child("Articles")
-                .child(UID);
+        DatabaseReference reference =FirebaseDatabase.getInstance().getReference().child("PendingArticles")
+                .child(MainActivity.CollegeName).child("Pending").child(UID);
+
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 article = dataSnapshot.getValue(Article.class);
-
+                if(article==null)
+                    return;
                // timeView.setText(article.getTime());
                 titleView.setText(article.getTitle());
                 authorView.setText(article.getAuthor());

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Article;
 import com.google.firebase.database.DataSnapshot;
@@ -25,6 +26,7 @@ public class Article_details extends AppCompatActivity {
 
     private Article article;
     public static final String key = "article";
+    public static final String key_status = "article_status";
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -47,6 +49,14 @@ public class Article_details extends AppCompatActivity {
         setContentView(R.layout.activity_article_details);
         Intent intent = getIntent();
         String UID = intent.getStringExtra(key);
+        int status = intent.getIntExtra(key_status,-5643);
+
+        if(status==-5643){
+            Toast.makeText(this, "Sorry This Article Has Been Deleted", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -61,26 +71,42 @@ public class Article_details extends AppCompatActivity {
 
         ImageView imageView = (ImageView) findViewById(R.id.articleImage);
 
+        DatabaseReference dbref ;
 
-        DatabaseReference reference =FirebaseDatabase.getInstance().getReference().child("Articles")
-                .child(UID);
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                article = dataSnapshot.getValue(Article.class);
+                Article article = dataSnapshot.getValue(Article.class);
+                if(article==null)
+                    return;
 
-                //timeView.setText(article.getTime());
                 titleView.setText(article.getTitle());
-                authorView.setText(article.getAuthor());
                 descriptionView.setText(article.getDescription());
+                authorView.setText(article.getAuthor());
+                timeView.setText(Long.toString(article.getTime()));
+
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //
-            }
-        });
 
+            }
+        };
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference dbref2;
+        if(status==0){
+            dbref = firebaseDatabase.getReference().child("PendingArticles")
+                    .child(MainActivity.CollegeName).child("Pending").child(UID);
+        }else if(status==-1){
+            dbref = firebaseDatabase.getReference().child("PendingArticles")
+                    .child(MainActivity.CollegeName).child("Rejected").child(UID);
+        }else{
+            dbref = firebaseDatabase.getReference().child("Articles").child(UID);
+            dbref2 = firebaseDatabase.getReference().child("College Content").child(MainActivity.CollegeName).child("Articles").child(UID);
+            dbref2.addListenerForSingleValueEvent(valueEventListener);
+        }
+        dbref.addValueEventListener(valueEventListener);
 
 
 

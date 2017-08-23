@@ -25,6 +25,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Article;
+import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.Utility.User;
 import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -337,52 +338,32 @@ public class Articles extends AppCompatActivity {
         mImageUrl.setText(Image);
 
         if (checkFields()) {
-            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department);
-
-            if(collegeChoices.getSelectedItemPosition()>1){
-                FirebaseDatabase.getInstance().getReference().child("College Content")
-                        .child((String)collegeChoices.getSelectedItem())
-                        .child("Articles")
-                        .child(Uid)
-                        .setValue(article);
+            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
+            EmployeeContentArticle employeeContentArticle = new EmployeeContentArticle(Uid,0);
 
 
-                if(!Department.equals("")){
-                    FirebaseDatabase.getInstance().getReference().child("College Content")
-                            .child((String)collegeChoices.getSelectedItem())
-                            .child("Department")
-                            .child(Department)
-                            .child(Uid)
-                            .setValue(Uid);
-                }
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("College Content")
-                            .child((String)collegeChoices.getSelectedItem())
-                            .child("Categories")
-                            .child("Articles")
-                            .child((String)categoryChoices.getSelectedItem())
-                            .child(Uid)
-                            .setValue(Uid);
-                }
-
-                Toast.makeText(this,"Article Uploaded!",Toast.LENGTH_SHORT).show();
+            String collegeName;
+            if(collegeChoices.getSelectedItemPosition()==0){
+                collegeName = MainActivity.CollegeName;
+            }else{
+                collegeName = (String) collegeChoices.getSelectedItem();
             }
-            else {
-                mArticleRef.child(Uid).setValue(article).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(Articles.this, "Article Uploaded!", Toast.LENGTH_LONG).show();
-                    }
-                });
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference().child("Categories")
-                            .child("Articles")
-                            .child((String)categoryChoices.getSelectedItem())
-                            .child(Uid)
-                            .setValue(Uid);
-                }
-            }
+
+            FirebaseDatabase.getInstance().getReference()
+                    .child("PendingArticles")
+                    .child(collegeName)
+                    .child("Pending")
+                    .child(Uid)
+                    .setValue(article);
+
+            FirebaseDatabase.getInstance().getReference()
+                    .child("EmployeeContent")
+                    .child(MainActivity.currentUser.getUid())
+                    .child("Articles")
+                    .child(Uid)
+                    .setValue(employeeContentArticle);
+
+
         }
 
     }

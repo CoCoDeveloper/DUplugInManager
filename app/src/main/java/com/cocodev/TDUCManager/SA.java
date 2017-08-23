@@ -53,7 +53,7 @@ public class SA extends AppCompatActivity {
         final Spinner departmentChoices = (Spinner) findViewById(R.id.spinner_course);
         final ArrayList<String> departments =new ArrayList<String>();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges").child("Keshav Mahavidyalya");
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList").child("Keshav Mahavidyalya");
         SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SA.this);
         final String selection = sharedpref.getString(KEY_DEPARTMENT,"");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -90,7 +90,7 @@ public class SA extends AppCompatActivity {
         final Spinner collegeChoices = (Spinner) findViewById(R.id.spinner_college);
         final ArrayList<String> colleges =new ArrayList<String>();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("Colleges");
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
 
         SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SA.this);
         final String selection = sharedpref.getString(KEY_COLLEGE,"");

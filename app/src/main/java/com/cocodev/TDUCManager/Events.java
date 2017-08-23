@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -157,12 +158,24 @@ public class Events extends AppCompatActivity {
     }
 
     private void uploadImage() {
-        description = mDesc.getText().toString();
-        time = getCurrentTime();
-        title = mTitle.getText().toString();
-        venue = mVenue.getText().toString();
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+
+            title = Html.toHtml(mTitle.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+            venue = Html.toHtml(mVenue.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+            description = Html.toHtml(mDesc.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+        } else {
+            title = Html.toHtml(mTitle.getText());
+            venue = Html.toHtml(mVenue.getText());
+            description = Html.toHtml(mDesc.getText());
+        }
+
+        time = calendar.getTimeInMillis();
+
+
         if(filePath == null)
-        image = mImageUrl.getText().toString();
+            image = mImageUrl.getText().toString();
+
         if(!checkFields())
             return;
         if (filePath != null) {

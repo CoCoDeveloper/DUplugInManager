@@ -55,7 +55,7 @@ public abstract class  RefListAdapter<T> extends ArrayAdapter<T>{
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 if(!lastArticle.equals(dataSnapshot.getKey())) {
                     lastArticle = dataSnapshot.getKey();
-                    T t = dataSnapshot.getValue(modelclass);
+                    T t =dataSnapshot.getValue(modelclass);
                     add(t);
                 }
             }

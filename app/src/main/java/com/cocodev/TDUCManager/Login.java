@@ -37,7 +37,7 @@ public class Login extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(!dataSnapshot.exists()){
-                        MainActivity.currentUser = new User(mAuth.getCurrentUser().getUid(),0);
+                        MainActivity.currentUser = new User(mAuth.getCurrentUser().getUid(),10);
                         databaseReference.setValue(MainActivity.currentUser);
                     }else{
                         MainActivity.currentUser = dataSnapshot.getValue(User.class);
