@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -13,19 +14,23 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -52,9 +57,12 @@ import java.util.Calendar;
 import java.util.Iterator;
 
 public class Events extends AppCompatActivity {
+    private String m_Text = "";
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
+    private ArrayList<String> selectedCategoriesList = new ArrayList<String>();
+    LinearLayout linearLayout;
 
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
@@ -113,6 +121,8 @@ public class Events extends AppCompatActivity {
         mTimePicker = (Button)findViewById(R.id.button_event_timePicker);
         mTime = (TextView)findViewById(R.id.textView_event_time);
 
+        linearLayout = (LinearLayout)findViewById(R.id.events_categoriesList);
+
         initCollegeSpinner();
         initCategorySpinner();
 
@@ -144,6 +154,9 @@ public class Events extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 uploadImage();
+
+
+
             }
         });
         mImagePicker.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +168,47 @@ public class Events extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
             }
         });
+
+
     }
+
+
+    public  void addNewCategory(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Custom Category");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                m_Text = input.getText().toString();
+                if(!TextUtils.isEmpty(m_Text)){
+                    DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList-beta").child("Events").child(m_Text);
+                    collegesDR.setValue("true");
+                    Toast.makeText(getApplicationContext(),"Category Added", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
+    }
+
+
+
 
     private void uploadImage() {
 
@@ -277,7 +330,35 @@ public class Events extends AppCompatActivity {
                 R.layout.category_spinner_row_nothing_selected,
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
-        arrayAdapter.add("University of Delhi");
+        arrayAdapter.add("Add New Category");
+        categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position==1){
+                    addNewCategory();
+                }else  if(position>1) {
+                    if(selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())){
+                        Toast.makeText(Events.this, "contains", Toast.LENGTH_SHORT).show();
+                    }else {
+                        String category = categoryChoices.getSelectedItem().toString();
+                        selectedCategoriesList.add(category);
+                        final TextView textView = new TextView(Events.this);
+                        textView.setText(category);
+                        textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                        linearLayout.addView(textView);
+
+                    }
+
+
+
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -334,15 +415,20 @@ public class Events extends AppCompatActivity {
                             .setValue(uid);
                 }
 
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("College Content")
-                            .child((String) collegeChoices.getSelectedItem())
-                            .child("Categories")
-                            .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
-                            .child(uid)
-                            .setValue(uid);
+
+                if(selectedCategoriesList.size()!=0){
+                    Iterator<String> iterator = selectedCategoriesList.iterator();
+                    while(iterator.hasNext()) {
+                        String temp = iterator.next();
+                        FirebaseDatabase.getInstance().getReference()
+                                .child("College Content")
+                                .child((String) collegeChoices.getSelectedItem())
+                                .child("Categories")
+                                .child("Events")
+                                .child(temp)
+                                .child(uid)
+                                .setValue(uid);
+                    }
                 }
 
                 Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
@@ -353,13 +439,20 @@ public class Events extends AppCompatActivity {
                         Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference().child("Categories")
+
+                Iterator<String> iterator = selectedCategoriesList.iterator();
+                while(iterator.hasNext()) {
+                    String temp = iterator.next();
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("College Content")
+                            .child((String) collegeChoices.getSelectedItem())
+                            .child("Categories")
                             .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
+                            .child(temp)
                             .child(uid)
                             .setValue(uid);
                 }
+
             }
         }
 
@@ -506,3 +599,4 @@ public class Events extends AppCompatActivity {
     }
 
 }
+

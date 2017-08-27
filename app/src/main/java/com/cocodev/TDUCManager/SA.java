@@ -183,6 +183,7 @@ public class SA extends AppCompatActivity {
                 aSwitch.setTextColor(Color.BLACK);
                 aSwitch.setOnCheckedChangeListener(hpOnCheckedChangeListener);
                 linearLayout.addView(aSwitch);
+
             }
         }
         @Override

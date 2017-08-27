@@ -9,7 +9,9 @@
         <item name="android:windowExitAnimation">@anim/slide_out_left</item>
     </style>
 
-
+    <style name="Theme.AppCompat.Light.NoActionBar" parent="@style/Theme.AppCompat.Light">
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
