@@ -2,12 +2,20 @@ package com.cocodev.TDUCManager;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -18,13 +26,17 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.cocodev.TDUCManager.Gallery.Adapters.ImagesAdapter;
+import com.cocodev.TDUCManager.Utility.MultiImageSelector;
 import com.cocodev.TDUCManager.Utility.Notice;
 import com.cocodev.TDUCManager.Utility.User;
 import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,7 +45,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,8 +57,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 public class PostNotice extends AppCompatActivity {
+
     DatabaseReference mNoticeRef;
     EditText mDesc,mTitle;
     TextView mDeadline;
@@ -58,6 +76,21 @@ public class PostNotice extends AppCompatActivity {
     private Calendar calendar;
     private int day,month,year;
     private long epoch;
+    private RecyclerView recyclerViewImages;
+    private GridLayoutManager gridLayoutManager;
+    private ArrayList<String> mSelectedImagesList = new ArrayList<>();
+    private ArrayList<String> mSelectedImagesUrls = new ArrayList<>();
+    private ArrayList<Uri> mSelectedImagesUri = new ArrayList<>();
+    private final int MAX_IMAGE_SELECTION_LIMIT=100;
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 401;
+    private final int REQUEST_IMAGE=301;
+    private MultiImageSelector mMultiImageSelector;
+    private ImagesAdapter mImagesAdapter;
+    private ImageButton imagePicker;
+    private ProgressDialog progressDialog;
+    FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+    StorageReference storageReference = firebaseStorage.getReference();
+
 
     private static String DEFAULT_SPINNER_TEXT = "[Select a College..]";
 
@@ -70,9 +103,11 @@ public class PostNotice extends AppCompatActivity {
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
 
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Uploading...");
 
         mNoticeRef = FirebaseDatabase.getInstance().getReference().child("Notices");
 
@@ -83,6 +118,26 @@ public class PostNotice extends AppCompatActivity {
         collegeChoices = (Spinner) findViewById(R.id.spinner_department_notices);
         departmentChoices = (Spinner)findViewById(R.id.spinner_college_notices);
         mTitle  = (EditText) findViewById(R.id.editText_notice_title);
+        imagePicker = (ImageButton) findViewById(R.id.image_button_notice);
+        recyclerViewImages = (RecyclerView) findViewById(R.id.recycler_view_images);
+        gridLayoutManager = new GridLayoutManager(this, 4);
+        recyclerViewImages.setHasFixedSize(true);
+        recyclerViewImages.setLayoutManager(gridLayoutManager);
+        mMultiImageSelector = MultiImageSelector.create();
+        imagePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(checkAndRequestPermissions()) {
+                    mMultiImageSelector.showCamera(true);
+                    mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
+                    mMultiImageSelector.multi();
+                    mMultiImageSelector.origin(mSelectedImagesList);
+                    mMultiImageSelector.start(PostNotice.this, REQUEST_IMAGE);
+
+                }
+            }
+        });
+
 
         mDatePicker = (Button)findViewById(R.id.button_datePicker);
 
@@ -105,9 +160,47 @@ public class PostNotice extends AppCompatActivity {
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                bindData();
+                uploadImage();
+
             }
         });
+
+    }
+
+    private void uploadImage() {
+
+        uid = mNoticeRef.push().getKey();
+        if (mSelectedImagesList != null) {
+            progressDialog.show();
+            Iterator<Uri> iterator = mSelectedImagesUri.iterator();
+            boolean  check=true;
+
+            while (iterator.hasNext()){
+                StorageReference childRef = storageReference.child("Notice").child(uid).child(mNoticeRef.push().getKey());
+                //uploading the image
+                UploadTask uploadTask = childRef.putFile((iterator.next()));
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Uri imageurl = taskSnapshot.getDownloadUrl();
+                        mSelectedImagesUrls.add(imageurl.toString());
+                        Toast.makeText(PostNotice.this, "Upload successful", Toast.LENGTH_SHORT).show();
+                        if(mSelectedImagesList.size()==mSelectedImagesUrls.size())
+                            bindData();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+        }else{
+            bindData();
+        }
 
     }
     private void bindData()
@@ -115,17 +208,10 @@ public class PostNotice extends AppCompatActivity {
         title = mTitle.getText().toString();
         description = mDesc.getText().toString();
         deadline = epoch;
-        if(departmentChoices.getSelectedItemPosition()==0){
-            department="";
-        }else {
-            department = (String) departmentChoices.getSelectedItem();
-        }
-        uid = mNoticeRef.push().getKey();
+
         time = System.currentTimeMillis();
-       if(checkFields()) {
-
-            notice = new Notice(uid,title,department, time, deadline, description);
-
+        if(checkFields()) {
+            notice = new Notice(uid,title,department, time, deadline, description,mSelectedImagesUrls);
             if(collegeChoices.getSelectedItemPosition()>1){
                 FirebaseDatabase.getInstance().getReference().child("College Content")
                         .child((String)collegeChoices.getSelectedItem())
@@ -134,14 +220,6 @@ public class PostNotice extends AppCompatActivity {
                         .setValue(notice);
 
 
-                if(!department.equals("")){
-                    FirebaseDatabase.getInstance().getReference().child("College Content")
-                            .child((String)collegeChoices.getSelectedItem())
-                            .child("Department")
-                            .child(department)
-                            .child(uid)
-                            .setValue(uid);
-                }
                 Toast.makeText(this,"Notice Uploaded!",Toast.LENGTH_SHORT).show();
             }else{
                 mNoticeRef.child(uid).setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -152,7 +230,7 @@ public class PostNotice extends AppCompatActivity {
                 });
             }
 
-       }
+        }
 
     }
 
@@ -175,6 +253,7 @@ public class PostNotice extends AppCompatActivity {
 
         }
     };
+
     private void initCollegeSpinner() {
 
         final ArrayList<String> colleges =new ArrayList<String>();
@@ -305,7 +384,46 @@ public class PostNotice extends AppCompatActivity {
 
     }
 
+    private boolean checkAndRequestPermissions() {
+        int externalStoragePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (externalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
+            imagePicker.performClick();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == REQUEST_IMAGE){
+            try {
+
+                mSelectedImagesList = data.getStringArrayListExtra(MultiImageSelector.EXTRA_RESULT);
+                mImagesAdapter = new ImagesAdapter(this,mSelectedImagesList);
+                recyclerViewImages.setAdapter(mImagesAdapter);
+                Iterator<String> iterator = mSelectedImagesList.iterator();
+                while (iterator.hasNext()) {
+                    mSelectedImagesUri.add(Uri.fromFile(new File(iterator.next())));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

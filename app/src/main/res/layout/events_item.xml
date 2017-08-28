@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:attr/detailsElementBackground"
+    android:orientation="vertical"
+    >
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="12dp"
+        app:cardElevation="4dp"
+        app:cardPreventCornerOverlap="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:id="@+id/event_UID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <ImageView
+                android:id="@+id/event_image"
+                android:layout_width="match_parent"
+                android:layout_height="170dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/event_place_holder" />
+
+            <TextView
+                android:id="@+id/event_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/event_image"
+                android:fontFamily="monospace"
+                android:padding="8dp"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
+            <View
+                android:id="@+id/event_titleLine"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0"
+                android:layout_below="@id/event_title"
+                android:layout_marginBottom="4dp"
+                />
+
+            <TextView
+                android:id="@+id/event_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/event_titleLine"
+                android:layout_marginLeft="4dp"
+                android:drawableLeft="@mipmap/time"
+                android:drawablePadding="4dp"
+                android:paddingLeft="8dp"
+                android:textSize="12sp" />
+
+            <View
+                android:id="@+id/event_timeLine"
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0"
+                android:layout_below="@id/event_time"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/event_venue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/event_time"
+                android:layout_below="@+id/event_timeLine"
+                android:layout_marginTop="4dp"
+                android:drawableLeft="@mipmap/place"
+                android:drawablePadding="4dp"
+                android:paddingBottom="8dp"
+                android:paddingLeft="8dp"
+                android:textColor="#505050"
+                android:textSize="12dp" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+</RelativeLayout>

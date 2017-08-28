@@ -37,8 +37,23 @@
         <activity android:name=".Events"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
-
         </activity>
+        <activity
+            android:name=".MultiImageSelectorActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.NoActionBar">
+            <provider
+                android:name="android.support.v4.content.FileProvider"
+                android:authorities="${applicationId}.provider"
+                android:exported="false"
+                android:grantUriPermissions="true" />
+
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_path" />
+        </activity>
+        <activity android:name=".EventDetails"></activity>
+
         <activity android:name=".pArticleDetails"></activity>
     </application>
 

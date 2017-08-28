@@ -22,6 +22,7 @@ import android.view.View;
 import com.cocodev.TDUCManager.Utility.User;
 import com.cocodev.TDUCManager.articles.PendingArticles;
 import com.cocodev.TDUCManager.articles.SubmittedArticles;
+import com.cocodev.TDUCManager.events.PendingEvents;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -94,9 +95,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void populateMenu() {
-        MenuItem pendingArticles = menu.add("PendingArticles");
+        MenuItem pendingArticles = menu.add("Pending Articles");
         pendingArticles.setOnMenuItemClickListener(menuItemClickListener);
         pendingArticles.setCheckable(true);
+        MenuItem pendingEvent = menu.add("Pending Events");
+        pendingEvent.setOnMenuItemClickListener(menuItemClickListener);
+        pendingEvent.setCheckable(true);
+
 
     }
 
@@ -108,10 +113,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MenuItem.OnMenuItemClickListener menuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-            if(item.getTitle().equals("PendingArticles")) {
+            if(item.getTitle().equals("Pending Articles")) {
                 getSupportFragmentManager().beginTransaction().replace(
                         R.id.fragment_layout,
                         new PendingArticles()
+                ).commit();
+
+            }
+            if(item.getTitle().equals("Pending Events")) {
+                getSupportFragmentManager().beginTransaction().replace(
+                        R.id.fragment_layout,
+                        new PendingEvents()
                 ).commit();
 
             }

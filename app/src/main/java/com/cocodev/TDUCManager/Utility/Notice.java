@@ -1,5 +1,7 @@
 package com.cocodev.TDUCManager.Utility;
 
+import java.util.ArrayList;
+
 /**
  * Created by Sudarshan on 16-06-2017.
  */
@@ -12,19 +14,28 @@ public class Notice {
     private Long time;
     private Long deadline;
     private String description;
+    private ArrayList<String> imageUrls = new ArrayList<>();
 
     public Notice(){
         //default constructor
     }
 
-
-    public Notice(String UID,String title,String department, Long time, Long deadline, String description) {
+    public Notice(String UID,String title,String department, Long time, Long deadline, String description,ArrayList<String> imageUrls) {
         this.UID = UID;
         this.title = title;
         this.department = department;
         this.time = time;
         this.deadline = deadline;
         this.description = description;
+        this.imageUrls = imageUrls;
+    }
+
+    public ArrayList<String> getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(ArrayList<String> imageUrls) {
+        this.imageUrls = imageUrls;
     }
 
     public String getTitle() {

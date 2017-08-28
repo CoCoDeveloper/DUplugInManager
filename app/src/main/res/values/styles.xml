@@ -13,6 +13,8 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <style name="NO_ACTIONBAR" parent="Theme.AppCompat.Light.NoActionBar"/>
+
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
