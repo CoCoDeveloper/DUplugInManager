@@ -1,10 +1,14 @@
 package com.cocodev.TDUCManager.Utility;
 
+import java.util.ArrayList;
+
 /**
  * Created by Sudarshan on 18-06-2017.
  */
 
 public class Event {
+
+    private ArrayList<String>  categoryList;
     private String UID;
     private String venue;
     private Long time;
@@ -13,19 +17,37 @@ public class Event {
     private String url;
     private Long date;
     private String title;
+    private String college;
 
     public Event(){}
 
-    public Event(String UID,String venue, Long time, String description, String url,String title,String department,Long date) {
-
+    public Event(ArrayList<String> categoryList, String UID, String venue, Long time, String description, String department, String url, Long date, String title, String college) {
+        this.categoryList = categoryList;
         this.UID = UID;
         this.venue = venue;
         this.time = time;
-        this.Description = description;
-        this.url = url;
-        this.title = title;
-        this.date = date;
+        Description = description;
         this.department = department;
+        this.url = url;
+        this.date = date;
+        this.title = title;
+        this.college = college;
+    }
+
+    public ArrayList<String> getCategoryList() {
+        return categoryList;
+    }
+
+    public void setCategoryList(ArrayList<String> categoryList) {
+        this.categoryList = categoryList;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
     }
 
     public Long getDate() {

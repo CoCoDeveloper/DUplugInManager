@@ -303,50 +303,7 @@ public class Events extends AppCompatActivity {
 
             event = new Event(uid,venue, time, description, image, title,department,date);
 
-            if(collegeChoices.getSelectedItemPosition()>1){
-                FirebaseDatabase.getInstance().getReference().child("College Content")
-                        .child((String)collegeChoices.getSelectedItem())
-                        .child("Events")
-                        .child(uid)
-                        .setValue(event);
-
-
-                if(!department.equals("")){
-                    FirebaseDatabase.getInstance().getReference().child("College Content")
-                            .child((String)collegeChoices.getSelectedItem())
-                            .child("Department")
-                            .child(department)
-                            .child(uid)
-                            .setValue(uid);
-                }
-
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("College Content")
-                            .child((String) collegeChoices.getSelectedItem())
-                            .child("Categories")
-                            .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
-                            .child(uid)
-                            .setValue(uid);
-                }
-
-                Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
-            }else{
-                mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
-                    }
-                });
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference().child("Categories")
-                            .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
-                            .child(uid)
-                            .setValue(uid);
-                }
-            }
+            mEventRef.child(uid).setValue(event);
         }
 
     }

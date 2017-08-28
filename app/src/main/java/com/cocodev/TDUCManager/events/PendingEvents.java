@@ -37,6 +37,7 @@ public class PendingEvents extends Fragment {
     private DatabaseReference databaseReference;
     private ListView mListView;
     private  FirebaseListAdapter<Event> mAdapter;
+
     public PendingEvents() {
         // Required empty public constructor
     }
@@ -47,7 +48,6 @@ public class PendingEvents extends Fragment {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference().child("PendingEvents");
-//        databaseReference = firebaseDatabase.getReference().child("Events");
 
     }
 

@@ -12,6 +12,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Event;
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +22,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+
 import static android.text.Html.fromHtml;
 import static com.cocodev.TDUCManager.Utility.Utility.getTimeAgo;
 
@@ -28,6 +31,7 @@ public class EventDetails extends AppCompatActivity {
     private String uid;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
+    private Event event;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +61,7 @@ public class EventDetails extends AppCompatActivity {
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Event event = dataSnapshot.getValue(Event.class);
+                 event = dataSnapshot.getValue(Event.class);
                 timeView.setText(getTimeAgo(EventDetails.this,event.getTime()));
                 titleView.setText(event.getTitle());
                 eventPlace.setText(event.getVenue());
@@ -78,14 +82,24 @@ public class EventDetails extends AppCompatActivity {
             public void onClick(View view) {
                 FirebaseDatabase.getInstance().getReference()
                         .child("PendingEvents")
-                        .
+                        .child(uid)
+                        .removeValue(new DatabaseReference.CompletionListener() {
+                            @Override
+                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                Toast.makeText(EventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
             }
         });
 
         buttonAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(event!=null){
+                    ArrayList<String> categories = event.getCategoryList();
+                    String college = event.getCollege();
+                    String department = event.getDepartment();
+                }
             }
         });
     }
