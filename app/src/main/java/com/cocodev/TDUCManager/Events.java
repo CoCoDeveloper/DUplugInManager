@@ -16,21 +16,18 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -57,20 +54,21 @@ import java.util.Calendar;
 import java.util.Iterator;
 
 public class Events extends AppCompatActivity {
-    private String m_Text = "";
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
-    private ArrayList<String> selectedCategoriesList = new ArrayList<String>();
-    LinearLayout linearLayout;
+
+    private String m_Text = "";
+
 
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
 
+
     Spinner departmentChoices,collegeChoices,categoryChoices;
     TextView mDate,mTime;
-    Button mSubmit, mImagePicker,mDatePicker,mTimePicker;
+    Button mSubmit, mImagePicker,mDatePicker,mTimePicker, maddCustomCategory;
 
     Event event;
     private FirebaseAuth mFirebaseAuth;
@@ -104,7 +102,7 @@ public class Events extends AppCompatActivity {
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
 
-        mEventRef = FirebaseDatabase.getInstance().getReference().child("Events");
+        mEventRef = FirebaseDatabase.getInstance().getReference().child("PendingEvents"); //Changed Target Location
 
         mTitle = (EditText) findViewById(R.id.editText_event_title);
         mDesc = (EditText) findViewById(R.id.editText_event_desc);
@@ -120,8 +118,7 @@ public class Events extends AppCompatActivity {
         mDate = (TextView)findViewById(R.id.textView_event_date);
         mTimePicker = (Button)findViewById(R.id.button_event_timePicker);
         mTime = (TextView)findViewById(R.id.textView_event_time);
-
-        linearLayout = (LinearLayout)findViewById(R.id.events_categoriesList);
+        maddCustomCategory = (Button) findViewById(R.id.add_custom_category);
 
         initCollegeSpinner();
         initCategorySpinner();
@@ -154,9 +151,6 @@ public class Events extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 uploadImage();
-
-
-
             }
         });
         mImagePicker.setOnClickListener(new View.OnClickListener() {
@@ -169,66 +163,23 @@ public class Events extends AppCompatActivity {
             }
         });
 
-
-    }
-
-
-    public  void addNewCategory(){
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Custom Category");
-
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        maddCustomCategory.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                m_Text = input.getText().toString();
-                if(!TextUtils.isEmpty(m_Text)){
-                    DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList-beta").child("Events").child(m_Text);
-                    collegesDR.setValue("true");
-                    Toast.makeText(getApplicationContext(),"Category Added", Toast.LENGTH_SHORT).show();
-                }
+            public void onClick(View v) {
+                displayDialog();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-
     }
-
 
 
 
     private void uploadImage() {
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-
-            title = Html.toHtml(mTitle.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
-            venue = Html.toHtml(mVenue.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
-            description = Html.toHtml(mDesc.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
-        } else {
-            title = Html.toHtml(mTitle.getText());
-            venue = Html.toHtml(mVenue.getText());
-            description = Html.toHtml(mDesc.getText());
-        }
-
-        time = calendar.getTimeInMillis();
-
-
+        description = mDesc.getText().toString();
+        time = getCurrentTime();
+        title = mTitle.getText().toString();
+        venue = mVenue.getText().toString();
         if(filePath == null)
-            image = mImageUrl.getText().toString();
-
+        image = mImageUrl.getText().toString();
         if(!checkFields())
             return;
         if (filePath != null) {
@@ -330,35 +281,10 @@ public class Events extends AppCompatActivity {
                 R.layout.category_spinner_row_nothing_selected,
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
-        arrayAdapter.add("Add New Category");
-        categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position==1){
-                    addNewCategory();
-                }else  if(position>1) {
-                    if(selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())){
-                        Toast.makeText(Events.this, "contains", Toast.LENGTH_SHORT).show();
-                    }else {
-                        String category = categoryChoices.getSelectedItem().toString();
-                        selectedCategoriesList.add(category);
-                        final TextView textView = new TextView(Events.this);
-                        textView.setText(category);
-                        textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                        linearLayout.addView(textView);
-
-                    }
+        arrayAdapter.add("Add a custom Category");
 
 
 
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -399,7 +325,7 @@ public class Events extends AppCompatActivity {
             event = new Event(uid,venue, time, description, image, title,department,date);
 
             if(collegeChoices.getSelectedItemPosition()>1){
-                FirebaseDatabase.getInstance().getReference().child("College Content")
+                FirebaseDatabase.getInstance().getReference().child("College Content-beta")
                         .child((String)collegeChoices.getSelectedItem())
                         .child("Events")
                         .child(uid)
@@ -407,7 +333,7 @@ public class Events extends AppCompatActivity {
 
 
                 if(!department.equals("")){
-                    FirebaseDatabase.getInstance().getReference().child("College Content")
+                    FirebaseDatabase.getInstance().getReference().child("College Content-beta")
                             .child((String)collegeChoices.getSelectedItem())
                             .child("Department")
                             .child(department)
@@ -415,20 +341,15 @@ public class Events extends AppCompatActivity {
                             .setValue(uid);
                 }
 
-
-                if(selectedCategoriesList.size()!=0){
-                    Iterator<String> iterator = selectedCategoriesList.iterator();
-                    while(iterator.hasNext()) {
-                        String temp = iterator.next();
-                        FirebaseDatabase.getInstance().getReference()
-                                .child("College Content")
-                                .child((String) collegeChoices.getSelectedItem())
-                                .child("Categories")
-                                .child("Events")
-                                .child(temp)
-                                .child(uid)
-                                .setValue(uid);
-                    }
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference()
+                            .child("College Content-beta")
+                            .child((String) collegeChoices.getSelectedItem())
+                            .child("Categories")
+                            .child("Events")
+                            .child((String)categoryChoices.getSelectedItem())
+                            .child(uid)
+                            .setValue(uid);
                 }
 
                 Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
@@ -439,20 +360,13 @@ public class Events extends AppCompatActivity {
                         Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
-
-                Iterator<String> iterator = selectedCategoriesList.iterator();
-                while(iterator.hasNext()) {
-                    String temp = iterator.next();
-                    FirebaseDatabase.getInstance().getReference()
-                            .child("College Content")
-                            .child((String) collegeChoices.getSelectedItem())
-                            .child("Categories")
+                if(categoryChoices.getSelectedItemPosition()!=0){
+                    FirebaseDatabase.getInstance().getReference().child("Categories-beta")
                             .child("Events")
-                            .child(temp)
+                            .child((String)categoryChoices.getSelectedItem())
                             .child(uid)
                             .setValue(uid);
                 }
-
             }
         }
 
@@ -598,5 +512,37 @@ public class Events extends AppCompatActivity {
         }
     }
 
-}
 
+
+    public void displayDialog(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Title");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                m_Text = input.getText().toString();
+                DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events-beta");
+                collegesDR.child(m_Text).setValue("true");
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
+    }
+
+}
