@@ -21,22 +21,21 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:hint="Title" />
-
-        <Spinner
-            android:id="@+id/spinner_event_department"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp" />
-
         <Spinner
             android:id="@+id/spinner_college_events"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
-            />
+            android:layout_marginLeft="8dp"
 
+            />
+        <Spinner
+            android:id="@+id/spinner_event_department"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginLeft="8dp"
+           />
         <Spinner
             android:id="@+id/spinner_event_category"
             android:layout_width="match_parent"
@@ -44,18 +43,12 @@
             android:layout_marginTop="8dp"
             android:layout_marginLeft="8dp"
             />
-
-        <LinearLayout
+        <Button
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/events_categoriesList"
-            android:orientation="vertical">
-
-        </LinearLayout>
-
-
-
-         <EditText
+            android:text="Add custom Category"
+            android:id="@+id/add_custom_category"/>
+        <EditText
             android:id="@+id/editText_event_desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -101,6 +94,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
+
             android:orientation="horizontal">
             <Button
                 android:id="@+id/button_event_timePicker"
