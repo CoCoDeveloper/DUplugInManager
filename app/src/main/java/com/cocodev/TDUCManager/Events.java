@@ -28,6 +28,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -57,29 +58,23 @@ public class Events extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
-
-    private String m_Text = "";
-
-
+    private TextView mCategoryList;
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle, mDesc, mVenue, mImageUrl;
-
-
-    Spinner departmentChoices,collegeChoices,categoryChoices;
-    TextView mDate,mTime;
-    Button mSubmit, mImagePicker,mDatePicker,mTimePicker, maddCustomCategory;
-
+    Spinner departmentChoices, collegeChoices, categoryChoices;
+    TextView mDate, mTime;
+    Button mSubmit, mImagePicker, mDatePicker, mTimePicker, mAddCustomCategory;
+    ArrayList<String> mSelectedCategoryList = new ArrayList<>();
     Event event;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
     private Calendar calendar;
-    private int day,month,year,hour,minute;
-    private long epoch,timeEpoch;
-    String uid,description,title,image,venue,department;
-    Long time,date;
-
+    private int day, month, year, hour, minute;
+    private long epoch, timeEpoch;
+    String uid, description, title, image, venue, department, newCategory;
+    Long time, date;
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
 
@@ -108,18 +103,17 @@ public class Events extends AppCompatActivity {
         mDesc = (EditText) findViewById(R.id.editText_event_desc);
         mVenue = (EditText) findViewById(R.id.editText_event_venue);
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
-        departmentChoices = (Spinner)findViewById(R.id.spinner_event_department);
+        departmentChoices = (Spinner) findViewById(R.id.spinner_event_department);
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
         categoryChoices = (Spinner) findViewById(R.id.spinner_event_category);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
-        mDatePicker = (Button)findViewById(R.id.button_event_datePicker);
-        mDate = (TextView)findViewById(R.id.textView_event_date);
-        mTimePicker = (Button)findViewById(R.id.button_event_timePicker);
-        mTime = (TextView)findViewById(R.id.textView_event_time);
-        maddCustomCategory = (Button) findViewById(R.id.add_custom_category);
-
+        mDatePicker = (Button) findViewById(R.id.button_event_datePicker);
+        mDate = (TextView) findViewById(R.id.textView_event_date);
+        mTimePicker = (Button) findViewById(R.id.button_event_timePicker);
+        mTime = (TextView) findViewById(R.id.textView_event_time);
+        mCategoryList = (TextView) findViewById(R.id.event_category_list);
         initCollegeSpinner();
         initCategorySpinner();
 
@@ -130,8 +124,8 @@ public class Events extends AppCompatActivity {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
 
-        showDate(day,month+1,year);
-        showTime(hour,minute);
+        showDate(day, month + 1, year);
+        showTime(hour, minute);
 
         mDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,25 +156,16 @@ public class Events extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
             }
         });
-
-        maddCustomCategory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displayDialog();
-            }
-        });
     }
-
-
 
     private void uploadImage() {
         description = mDesc.getText().toString();
         time = getCurrentTime();
         title = mTitle.getText().toString();
         venue = mVenue.getText().toString();
-        if(filePath == null)
-        image = mImageUrl.getText().toString();
-        if(!checkFields())
+        if (filePath == null)
+            image = mImageUrl.getText().toString();
+        if (!checkFields())
             return;
         if (filePath != null) {
             progressDialog.show();
@@ -209,20 +194,53 @@ public class Events extends AppCompatActivity {
             bindData();
         }
     }
-    private void showTime(int hour, int minute)
-    {
-        String time  = new StringBuilder().append(hour).append(":").append(minute).toString();
-        epoch =  calendar.getTimeInMillis();
+
+    public void displayDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Title");
+
+        // Set up the input
+        final EditText input = new EditText(this);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newCategory = input.getText().toString();
+                DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
+                collegesDR.child(newCategory).setValue("true");
+
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+
+    }
+
+    private void showTime(int hour, int minute) {
+        String time = new StringBuilder().append(hour).append(":").append(minute).toString();
+        epoch = calendar.getTimeInMillis();
         mTime.setText(String.valueOf(time));
     }
+
     @Override
     protected Dialog onCreateDialog(int id) {
-        if(id==1337)
-            return new DatePickerDialog(this,myDateListener,year,month,day);
-        if(id==1338)
-            return new TimePickerDialog(this,myTimeListener,hour,minute,false);
+        if (id == 1337)
+            return new DatePickerDialog(this, myDateListener, year, month, day);
+        if (id == 1338)
+            return new TimePickerDialog(this, myTimeListener, hour, minute, false);
         return null;
     }
+
     private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
@@ -234,27 +252,28 @@ public class Events extends AppCompatActivity {
             year = i;
             month = i1;
             day = i2;
-            calendar.set(i,i1,i2);
-            showDate(i2,i1+1,i);
+            calendar.set(i, i1, i2);
+            showDate(i2, i1 + 1, i);
         }
     };
-    private  TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
+    private TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker timePicker, int i, int i1) {
             /*
             i = hour
             i1 = minute
              */
-            calendar.set(year,month,day,i,i1);
-            showTime(i,i1);
+            calendar.set(year, month, day, i, i1);
+            showTime(i, i1);
 
         }
     };
-    private void showDate(int day, int month, int year)
-    {
-        String date  = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
+
+    private void showDate(int day, int month, int year) {
+        String date = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDate.setText(date);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -272,24 +291,23 @@ public class Events extends AppCompatActivity {
             }
         }
     }
+
     private void initCategorySpinner() {
 
-        final ArrayList<String> category =new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,category);
+        final ArrayList<String> category = new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, category);
         categoryChoices.setAdapter(new NothingSelectedSpinnerAdapter(
                 arrayAdapter,
                 R.layout.category_spinner_row_nothing_selected,
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
-        arrayAdapter.add("Add a custom Category");
-
-
-
+        arrayAdapter.add("Add Category");
+        arrayAdapter.add("University of Delhi");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     DataSnapshot temp = iterator.next();
                     //get name of the department
                     String college = temp.getKey().toString();
@@ -299,71 +317,88 @@ public class Events extends AppCompatActivity {
                     //collegeChoices.setSelection(arrayAdapter.getPosition(department));
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //We will see this later
 
             }
         });
-       // TODO :categoryChoices.setOnItemSelectedListener(categorySelectedListener);
+        categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("tag", "Position  = " + Integer.toString(i));
+                if (i == 1) {
+                    displayDialog();
+                } else if(i!=0 && i!=1){
+                    mCategoryList.append(adapterView.getSelectedItem().toString()+",");
+                    mSelectedCategoryList.add(adapterView.getSelectedItem().toString());
+                    Log.i("onCategorySelected",adapterView.getSelectedItem().toString());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     private void bindData() {
 
-        if(departmentChoices.getSelectedItemPosition()==0){
-            department="";
-        }else {
+        if (departmentChoices.getSelectedItemPosition() == 0) {
+            department = "";
+        } else {
             department = (String) departmentChoices.getSelectedItem();
         }
         date = epoch;
         uid = mEventRef.push().getKey();
 
         mImageUrl.setText(image);
-
         if (checkFields()) {
 
-            event = new Event(uid,venue, time, description, image, title,department,date);
+            event = new Event(uid, venue, time, description, image, title, department, date);
 
-            if(collegeChoices.getSelectedItemPosition()>1){
-                FirebaseDatabase.getInstance().getReference().child("College Content-beta")
-                        .child((String)collegeChoices.getSelectedItem())
+            if (collegeChoices.getSelectedItemPosition() > 1) {
+                FirebaseDatabase.getInstance().getReference().child("College Content")
+                        .child((String) collegeChoices.getSelectedItem())
                         .child("Events")
                         .child(uid)
                         .setValue(event);
 
 
-                if(!department.equals("")){
-                    FirebaseDatabase.getInstance().getReference().child("College Content-beta")
-                            .child((String)collegeChoices.getSelectedItem())
+                if (!department.equals("")) {
+                    FirebaseDatabase.getInstance().getReference().child("College Content")
+                            .child((String) collegeChoices.getSelectedItem())
                             .child("Department")
                             .child(department)
                             .child(uid)
                             .setValue(uid);
                 }
 
-                if(categoryChoices.getSelectedItemPosition()!=0){
+                if (categoryChoices.getSelectedItemPosition() != 0) {
                     FirebaseDatabase.getInstance().getReference()
                             .child("College Content-beta")
                             .child((String) collegeChoices.getSelectedItem())
                             .child("Categories")
                             .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
+                            .child((String) categoryChoices.getSelectedItem())
                             .child(uid)
                             .setValue(uid);
                 }
 
-                Toast.makeText(this,"Event Uploaded!",Toast.LENGTH_SHORT).show();
-            }else{
+                Toast.makeText(this, "Event Uploaded!", Toast.LENGTH_SHORT).show();
+            } else {
                 mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(Events.this, "Event Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
-                if(categoryChoices.getSelectedItemPosition()!=0){
-                    FirebaseDatabase.getInstance().getReference().child("Categories-beta")
+                if (categoryChoices.getSelectedItemPosition() != 0) {
+                    FirebaseDatabase.getInstance().getReference().child("Categories")
                             .child("Events")
-                            .child((String)categoryChoices.getSelectedItem())
+                            .child((String) categoryChoices.getSelectedItem())
                             .child(uid)
                             .setValue(uid);
                 }
@@ -371,10 +406,11 @@ public class Events extends AppCompatActivity {
         }
 
     }
+
     private void initCollegeSpinner() {
 
-        final ArrayList<String> colleges =new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
+        final ArrayList<String> colleges = new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, colleges);
         collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
                 arrayAdapter,
                 R.layout.contact_spinner_row_nothing_selected,
@@ -385,7 +421,7 @@ public class Events extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     DataSnapshot temp = iterator.next();
                     //get name of the department
                     String college = temp.getKey().toString();
@@ -395,6 +431,7 @@ public class Events extends AppCompatActivity {
                     //collegeChoices.setSelection(arrayAdapter.getPosition(department));
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //We will see this later
@@ -420,14 +457,15 @@ public class Events extends AppCompatActivity {
         }
         return true;
     }
+
     AdapterView.OnItemSelectedListener collegeSelectedListener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            Log.e("tag","Position  = " + Integer.toString(position));
-            if(position==0 || position==1){
+            Log.e("tag", "Position  = " + Integer.toString(position));
+            if (position == 0 || position == 1) {
                 departmentChoices.setVisibility(View.GONE);
                 departmentChoices.setSelection(0);
-            }else {
+            } else {
                 departmentChoices.setVisibility(View.VISIBLE);
                 initDepartmentSpinner();
             }
@@ -440,21 +478,21 @@ public class Events extends AppCompatActivity {
     };
 
     private void initDepartmentSpinner() {
-        final ArrayList<String> departments =new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
+        final ArrayList<String> departments = new ArrayList<String>();
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departments);
         departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
                 arrayAdapter,
                 R.layout.contact_spinner_row_nothing_selected_department,
                 this));
 
         DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
-                .child((String)collegeChoices.getSelectedItem());
+                .child((String) collegeChoices.getSelectedItem());
 
         departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     DataSnapshot temp = iterator.next();
                     //get name of the department
                     String department = temp.getKey().toString();
@@ -464,6 +502,7 @@ public class Events extends AppCompatActivity {
                     //collegeChoices.setSelection(arrayAdapter.getPosition(department));
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //We will see this later
@@ -510,39 +549,6 @@ public class Events extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
 
         }
-    }
-
-
-
-    public void displayDialog(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
-
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                m_Text = input.getText().toString();
-                DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events-beta");
-                collegesDR.child(m_Text).setValue("true");
-
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-
     }
 
 }
