@@ -43,14 +43,17 @@
             android:layout_marginTop="8dp"
             android:layout_marginLeft="8dp"
             />
-        <TextView
-            android:id="@+id/event_category_list"
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/events_categoriesList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginLeft="8dp">
 
-        </TextView>
+        </LinearLayout>
+
         <EditText
             android:id="@+id/editText_event_desc"
             android:layout_width="match_parent"
@@ -143,6 +146,11 @@
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
             android:text="Submit" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view_images"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/fab_margin"/>
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="300dp"

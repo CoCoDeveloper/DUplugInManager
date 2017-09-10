@@ -114,6 +114,7 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
         textView.setText("There are currently no articles under this Category.");
         mListView.setEmptyView(textView);
 
+
         //if this is the home page else ...
 
         mAdapter = new CustomArticleHolderAdapter<Article>(

@@ -66,7 +66,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(getSupportFragmentManager().findFragmentById(R.id.fragment_layout)==null){
             getSupportFragmentManager().beginTransaction().replace(
                     R.id.fragment_layout,
-                    new SubmittedArticles()
+                    new PendingArticles()
             ).commit();
             navigationView.setCheckedItem(R.id.home);
         }
@@ -95,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void populateMenu() {
-        MenuItem pendingArticles = menu.add("Pending Articles");
+        MenuItem pendingArticles = menu.add("Submitted Articles");
         pendingArticles.setOnMenuItemClickListener(menuItemClickListener);
         pendingArticles.setCheckable(true);
         MenuItem pendingEvent = menu.add("Pending Events");
@@ -113,10 +112,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MenuItem.OnMenuItemClickListener menuItemClickListener = new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-            if(item.getTitle().equals("Pending Articles")) {
+            if(item.getTitle().equals("Submitted Articles")) {
                 getSupportFragmentManager().beginTransaction().replace(
                         R.id.fragment_layout,
-                        new PendingArticles()
+                        new SubmittedArticles()
                 ).commit();
 
             }

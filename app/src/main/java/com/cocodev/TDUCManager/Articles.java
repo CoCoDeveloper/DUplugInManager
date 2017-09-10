@@ -2,15 +2,18 @@ package com.cocodev.TDUCManager;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -24,8 +27,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.cocodev.TDUCManager.Gallery.Adapters.ImagesAdapter;
 import com.cocodev.TDUCManager.Utility.Article;
-import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
+import com.cocodev.TDUCManager.Utility.MultiImageSelector;
 import com.cocodev.TDUCManager.Utility.User;
 import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,8 +45,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class Articles extends AppCompatActivity {
     ImageView imgView;
@@ -57,7 +63,16 @@ public class Articles extends AppCompatActivity {
     String writerUID;
 
     Spinner departmentChoices,collegeChoices,categoryChoices;
-
+    private RecyclerView recyclerViewImages;
+    private GridLayoutManager gridLayoutManager;
+    private ArrayList<String> mSelectedImagesList = new ArrayList<>();
+    private ArrayList<String> mSelectedImagesUrls = new ArrayList<>();
+    private ArrayList<Uri> mSelectedImagesUri = new ArrayList<>();
+    private final int MAX_IMAGE_SELECTION_LIMIT = 1;
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 401;
+    private final int REQUEST_IMAGE = 301;
+    private MultiImageSelector mMultiImageSelector;
+    private ImagesAdapter mImagesAdapter;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
@@ -124,6 +139,11 @@ public class Articles extends AppCompatActivity {
         mImagePicker = (Button) findViewById(R.id.button_image_picker);
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_articles);
         departmentChoices = (Spinner) findViewById(R.id.spinner_department_articles);
+        recyclerViewImages = (RecyclerView) findViewById(R.id.recycler_view_images);
+        gridLayoutManager = new GridLayoutManager(this, 4);
+        recyclerViewImages.setHasFixedSize(true);
+        recyclerViewImages.setLayoutManager(gridLayoutManager);
+        mMultiImageSelector = MultiImageSelector.create();
 
         categoryChoices = (Spinner) findViewById(R.id.spinner_category_articles);
 
@@ -135,10 +155,14 @@ public class Articles extends AppCompatActivity {
         mImagePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_PICK);
-                startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+                if (checkAndRequestPermissions()) {
+                    mMultiImageSelector.showCamera(true);
+                    mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
+                    mMultiImageSelector.multi();
+                    mMultiImageSelector.origin(mSelectedImagesList);
+                    mMultiImageSelector.start(Articles.this, REQUEST_IMAGE);
+
+                }
             }
         });
 
@@ -160,51 +184,93 @@ public class Articles extends AppCompatActivity {
         Content = mFullArticle.getText().toString();
         if(!checkFields())
             return;
-        if (filePath != null) {
+        Uid = mArticleRef.push().getKey();
+        if (mSelectedImagesList != null && mSelectedImagesList.size()!=0) {
             progressDialog.show();
+            Iterator<Uri> iterator = mSelectedImagesUri.iterator();
 
-            StorageReference childRef = storageReference.child("Articles").child(filePath.getLastPathSegment());
-            //uploading the image
-            UploadTask uploadTask = childRef.putFile(filePath);
+            while (iterator.hasNext()){
+                StorageReference childRef = storageReference.child("Articles").child(Uid).child(mArticleRef.push().getKey());
+                //uploading the image
 
-            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    progressDialog.dismiss();
-                    Uri imageurl = taskSnapshot.getDownloadUrl();
-                    Image = imageurl.toString();
-                    Toast.makeText(getApplicationContext(), "Upload successful", Toast.LENGTH_SHORT).show();
-                    bindData();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
+                UploadTask uploadTask = childRef.putFile((iterator.next()));
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Uri imageurl = taskSnapshot.getDownloadUrl();
+                        mSelectedImagesUrls.add(imageurl.toString());
+                        bindData();
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+        }else{
             bindData();
         }
     }
+
+    private boolean checkAndRequestPermissions() {
+        int externalStoragePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (externalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
+            mImagePicker.performClick();
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
-
+//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+//            filePath = data.getData();
+//
+//            try {
+//                //getting image from gallery
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+//
+//                //Setting image to ImageView
+//                imgView.setImageBitmap(bitmap);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+        if(requestCode == REQUEST_IMAGE){
             try {
-                //getting image from gallery
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-
-                //Setting image to ImageView
-                imgView.setImageBitmap(bitmap);
+                mSelectedImagesList = data.getStringArrayListExtra(MultiImageSelector.EXTRA_RESULT);
+                mImagesAdapter = new ImagesAdapter(this,mSelectedImagesList);
+                recyclerViewImages.setAdapter(mImagesAdapter);
+                Iterator<String> iterator = mSelectedImagesList.iterator();
+                while (iterator.hasNext()) {
+                    mSelectedImagesUri.add(Uri.fromFile(new File(iterator.next())));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
     }
 
     private void initCollegeSpinner() {
@@ -337,31 +403,57 @@ public class Articles extends AppCompatActivity {
         }
         mImageUrl.setText(Image);
 
-        if (checkFields()) {
-            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
-            EmployeeContentArticle employeeContentArticle = new EmployeeContentArticle(Uid,0);
+//        if (checkFields()) {
+//            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
+//            EmployeeContentArticle employeeContentArticle = new EmployeeContentArticle(Uid,0);
+//
+//
+//            String collegeName;
+//            if(collegeChoices.getSelectedItemPosition()==0){
+//                collegeName = MainActivity.CollegeName;
+//            }else{
+//                collegeName = (String) collegeChoices.getSelectedItem();
+//            }
+//
+//            FirebaseDatabase.getInstance().getReference()
+//                    .child("PendingArticles")
+//                    .child(collegeName)
+//                    .child("Pending")
+//                    .child(Uid)
+//                    .setValue(article);
+//
+//            FirebaseDatabase.getInstance().getReference()
+//                    .child("EmployeeContent")
+//                    .child(MainActivity.currentUser.getUid())
+//                    .child("Articles")
+//                    .child(Uid)
+//                    .setValue(employeeContentArticle);
+//
+//
+//        }
 
+        article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
 
-            String collegeName;
-            if(collegeChoices.getSelectedItemPosition()==0){
-                collegeName = MainActivity.CollegeName;
-            }else{
-                collegeName = (String) collegeChoices.getSelectedItem();
-            }
-
+        if(collegeChoices.getSelectedItemPosition()>1){
+            Toast.makeText(this, "selected", Toast.LENGTH_SHORT).show();
             FirebaseDatabase.getInstance().getReference()
-                    .child("PendingArticles")
-                    .child(collegeName)
-                    .child("Pending")
+                    .child("College Content")
+                    .child((String) collegeChoices.getSelectedItem())
+                    .child("Articles")
                     .child(Uid)
                     .setValue(article);
 
-            FirebaseDatabase.getInstance().getReference()
-                    .child("EmployeeContent")
-                    .child(MainActivity.currentUser.getUid())
-                    .child("Articles")
-                    .child(Uid)
-                    .setValue(employeeContentArticle);
+
+            if(departmentChoices.getSelectedItemPosition()>0){
+                FirebaseDatabase.getInstance().getReference()
+                        .child("College Content")
+                        .child(MainActivity.CollegeName)
+                        .child("Department")
+                        .child((String) departmentChoices.getSelectedItem())
+                        .child(Uid)
+                        .setValue(Uid);
+            }
+
 
 
         }

@@ -20,16 +20,7 @@ public class Article  {
         //default Constructor
     }
 
-    public Article(String author, String description, long time, String tagLine, String imageUrl,String title,String writerUid,String collegeName) {
-        this.author = author;
-        this.description = description;
-        this.time = time;
-        this.tagLine = tagLine;
-        this.imageUrl = imageUrl;
-        this.title = title;
-        this.writerUid = writerUid;
-        this.collegeName = collegeName;
-    }
+
 
     public Article(String UID,String author, String description, long time, String tagLine, String imageUrl, String title, String writerUid, String department,String collegeName) {
         this.uid = UID;
@@ -128,5 +119,7 @@ public class Article  {
     public void setCollegeName(String collegeName) {
         this.collegeName = collegeName;
     }
+
+
 }
 

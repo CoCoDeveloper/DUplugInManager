@@ -1,13 +1,16 @@
 package com.cocodev.TDUCManager.Gallery.Views;
 
 import android.content.Context;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
 /**
  * An image view which always remains square with respect to its width.
  */
-class SquaredImageView extends ImageView {
+public class SquaredImageView extends AppCompatImageView {
+
+
+
     public SquaredImageView(Context context) {
         super(context);
     }

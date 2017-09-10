@@ -7,13 +7,16 @@ package com.cocodev.TDUCManager.Utility;
 public class User {
     private String Uid;
     private int clearenceLevel;
+    private String fullName;
+
 
     public User() {
     }
 
-    public User(String uid, int clearenceLevel) {
+    public User(String uid, int clearenceLevel, String fullName) {
         Uid = uid;
         this.clearenceLevel = clearenceLevel;
+        this.fullName = fullName;
     }
 
     public String getUid() {
@@ -30,5 +33,13 @@ public class User {
 
     public void setClearenceLevel(int clearenceLevel) {
         this.clearenceLevel = clearenceLevel;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

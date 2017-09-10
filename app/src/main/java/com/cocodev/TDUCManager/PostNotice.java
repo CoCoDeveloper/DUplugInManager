@@ -170,7 +170,7 @@ public class PostNotice extends AppCompatActivity {
     private void uploadImage() {
 
         uid = mNoticeRef.push().getKey();
-        if (mSelectedImagesList != null) {
+        if (mSelectedImagesList != null && mSelectedImagesList.size()!=0) {
             progressDialog.show();
             Iterator<Uri> iterator = mSelectedImagesUri.iterator();
             boolean  check=true;
@@ -178,6 +178,7 @@ public class PostNotice extends AppCompatActivity {
             while (iterator.hasNext()){
                 StorageReference childRef = storageReference.child("Notice").child(uid).child(mNoticeRef.push().getKey());
                 //uploading the image
+
                 UploadTask uploadTask = childRef.putFile((iterator.next()));
                 uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -185,9 +186,9 @@ public class PostNotice extends AppCompatActivity {
                         progressDialog.dismiss();
                         Uri imageurl = taskSnapshot.getDownloadUrl();
                         mSelectedImagesUrls.add(imageurl.toString());
-                        Toast.makeText(PostNotice.this, "Upload successful", Toast.LENGTH_SHORT).show();
-                        if(mSelectedImagesList.size()==mSelectedImagesUrls.size())
+                        if(mSelectedImagesList.size()==mSelectedImagesUrls.size()) {
                             bindData();
+                        }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

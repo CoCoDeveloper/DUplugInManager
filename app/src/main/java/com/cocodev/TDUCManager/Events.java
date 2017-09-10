@@ -1,60 +1,67 @@
-	package com.cocodev.TDUCManager;
+package com.cocodev.TDUCManager;
 
-    import android.app.DatePickerDialog;
-    import android.app.Dialog;
-    import android.app.ProgressDialog;
-    import android.app.TimePickerDialog;
-    import android.content.DialogInterface;
-    import android.content.Intent;
-    import android.graphics.Bitmap;
-    import android.graphics.Color;
-    import android.graphics.drawable.ColorDrawable;
-    import android.net.Uri;
-    import android.os.Bundle;
-    import android.provider.MediaStore;
-    import android.support.annotation.NonNull;
-    import android.support.v7.app.ActionBar;
-    import android.support.v7.app.AlertDialog;
-    import android.support.v7.app.AppCompatActivity;
-    import android.text.Html;
-    import android.text.InputType;
-    import android.text.TextUtils;
-    import android.util.Log;
-    import android.view.Menu;
-    import android.view.MenuItem;
-    import android.view.View;
-    import android.view.ViewGroup;
-    import android.widget.AdapterView;
-    import android.widget.ArrayAdapter;
-    import android.widget.Button;
-    import android.widget.DatePicker;
-    import android.widget.EditText;
-    import android.widget.ImageView;
-    import android.widget.LinearLayout;
-    import android.widget.Spinner;
-    import android.widget.TextView;
-    import android.widget.TimePicker;
-    import android.widget.Toast;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.InputType;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
-    import com.cocodev.TDUCManager.Utility.Event;
-    import com.cocodev.TDUCManager.Utility.User;
-    import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
-    import com.google.android.gms.tasks.OnFailureListener;
-    import com.google.android.gms.tasks.OnSuccessListener;
-    import com.google.firebase.auth.FirebaseAuth;
-    import com.google.firebase.auth.FirebaseUser;
-    import com.google.firebase.database.DataSnapshot;
-    import com.google.firebase.database.DatabaseError;
-    import com.google.firebase.database.DatabaseReference;
-    import com.google.firebase.database.FirebaseDatabase;
-    import com.google.firebase.database.ValueEventListener;
-    import com.google.firebase.storage.FirebaseStorage;
-    import com.google.firebase.storage.StorageReference;
-    import com.google.firebase.storage.UploadTask;
+import com.cocodev.TDUCManager.Gallery.Adapters.ImagesAdapter;
+import com.cocodev.TDUCManager.Utility.Event;
+import com.cocodev.TDUCManager.Utility.MultiImageSelector;
+import com.cocodev.TDUCManager.Utility.User;
+import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
-    import java.util.ArrayList;
-    import java.util.Calendar;
-    import java.util.Iterator;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
 
 public class Events extends AppCompatActivity {
     ImageView imgView;
@@ -70,6 +77,16 @@ public class Events extends AppCompatActivity {
     TextView mDate, mTime;
     Button mSubmit, mImagePicker, mDatePicker, mTimePicker, mAddCustomCategory;
     Event event;
+    private RecyclerView recyclerViewImages;
+    private GridLayoutManager gridLayoutManager;
+    private ArrayList<String> mSelectedImagesList = new ArrayList<>();
+    private ArrayList<String> mSelectedImagesUrls = new ArrayList<>();
+    private ArrayList<Uri> mSelectedImagesUri = new ArrayList<>();
+    private final int MAX_IMAGE_SELECTION_LIMIT = 1;
+    private static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 401;
+    private final int REQUEST_IMAGE = 301;
+    private MultiImageSelector mMultiImageSelector;
+    private ImagesAdapter mImagesAdapter;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     public static User currentUser;
@@ -78,7 +95,7 @@ public class Events extends AppCompatActivity {
     private long epoch, timeEpoch;
     String uid, description, title, image, venue, department, newCategory;
     Long time, date;
-    private TextView mCategoryList;
+
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
 
@@ -113,14 +130,17 @@ public class Events extends AppCompatActivity {
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
-        mDatePicker = (Button)findViewById(R.id.button_event_datePicker);
-        mDate = (TextView)findViewById(R.id.textView_event_date);
-        mTimePicker = (Button)findViewById(R.id.button_event_timePicker);
-        mTime = (TextView)findViewById(R.id.textView_event_time);
-        linearLayout = (LinearLayout)findViewById(R.id.events_categoriesList);
-        mCategoryList = (TextView) findViewById(R.id.event_category_list);
-        
-		initCollegeSpinner();
+        mDatePicker = (Button) findViewById(R.id.button_event_datePicker);
+        mDate = (TextView) findViewById(R.id.textView_event_date);
+        mTimePicker = (Button) findViewById(R.id.button_event_timePicker);
+        mTime = (TextView) findViewById(R.id.textView_event_time);
+        linearLayout = (LinearLayout) findViewById(R.id.events_categoriesList);
+        recyclerViewImages = (RecyclerView) findViewById(R.id.recycler_view_images);
+        gridLayoutManager = new GridLayoutManager(this, 4);
+        recyclerViewImages.setHasFixedSize(true);
+        recyclerViewImages.setLayoutManager(gridLayoutManager);
+        mMultiImageSelector = MultiImageSelector.create();
+        initCollegeSpinner();
         initCategorySpinner();
 
         calendar = Calendar.getInstance();
@@ -156,10 +176,14 @@ public class Events extends AppCompatActivity {
         mImagePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_PICK);
-                startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
+                if (checkAndRequestPermissions()) {
+                    mMultiImageSelector.showCamera(true);
+                    mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
+                    mMultiImageSelector.multi();
+                    mMultiImageSelector.origin(mSelectedImagesList);
+                    mMultiImageSelector.start(Events.this, REQUEST_IMAGE);
+
+                }
             }
         });
     }
@@ -170,7 +194,7 @@ public class Events extends AppCompatActivity {
 
             title = mTitle.getText().toString();
             venue = mVenue.getText().toString();
-            description = Html.toHtml(mDesc.getText(),Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+            description = Html.toHtml(mDesc.getText(), Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
         } else {
             title = mTitle.getText().toString();
             venue = mVenue.getText().toString();
@@ -178,38 +202,45 @@ public class Events extends AppCompatActivity {
         }
 
         time = calendar.getTimeInMillis();
-		if(filePath==null)
-			image = mImageUrl.getText().toString();
+        if (filePath == null)
+            image = mImageUrl.getText().toString();
 
-		
+
         if (!checkFields())
             return;
-        if (filePath != null) {
+        uid = mEventRef.push().getKey();
+        if (mSelectedImagesList != null) {
             progressDialog.show();
+            Iterator<Uri> iterator = mSelectedImagesUri.iterator();
 
-            StorageReference childRef = storageReference.child("Events").child(filePath.getLastPathSegment());
-            //uploading the image
-            UploadTask uploadTask = childRef.putFile(filePath);
-            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    progressDialog.dismiss();
-                    Uri imageurl = taskSnapshot.getDownloadUrl();
-                    image = imageurl.toString();
-                    Toast.makeText(Events.this, "Upload successful", Toast.LENGTH_SHORT).show();
-                    bindData();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getApplicationContext(), "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
-                }
-            });
-        } else {
-            //image = "";
+            while (iterator.hasNext()){
+                StorageReference childRef = storageReference.child("Events").child(uid).child(mEventRef.push().getKey());
+                //uploading the image
+
+                UploadTask uploadTask = childRef.putFile((iterator.next()));
+                uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        progressDialog.dismiss();
+                        Uri imageurl = taskSnapshot.getDownloadUrl();
+                        mSelectedImagesUrls.add(imageurl.toString());
+                        if(mSelectedImagesList.size()==mSelectedImagesUrls.size()) {
+                            bindData();
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        progressDialog.dismiss();
+                        Toast.makeText(getApplicationContext(), "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+        }else{
             bindData();
         }
+
     }
 
     public void addNewCategory() {
@@ -286,6 +317,28 @@ public class Events extends AppCompatActivity {
         }
     };
 
+    private boolean checkAndRequestPermissions() {
+        int externalStoragePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (externalStoragePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
+            mImagePicker.performClick();
+        }
+    }
+
     private void showDate(int day, int month, int year) {
         String date = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
         mDate.setText(date);
@@ -294,15 +347,15 @@ public class Events extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            filePath = data.getData();
-
+        if(requestCode == REQUEST_IMAGE){
             try {
-                //getting image from gallery
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                //Setting image to ImageView
-                imgView.setImageBitmap(bitmap);
+                mSelectedImagesList = data.getStringArrayListExtra(MultiImageSelector.EXTRA_RESULT);
+                mImagesAdapter = new ImagesAdapter(this,mSelectedImagesList);
+                recyclerViewImages.setAdapter(mImagesAdapter);
+                Iterator<String> iterator = mSelectedImagesList.iterator();
+                while (iterator.hasNext()) {
+                    mSelectedImagesUri.add(Uri.fromFile(new File(iterator.next())));
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -319,17 +372,17 @@ public class Events extends AppCompatActivity {
                 this));
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
 
-		arrayAdapter.add("Add New Category");
+        arrayAdapter.add("Add New Category");
         arrayAdapter.add("University of Delhi");
         categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position==1){
+                if (position == 1) {
                     addNewCategory();
-                }else  if(position>1) {
-                    if(selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())){
+                } else if (position > 1) {
+                    if (selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())) {
                         Toast.makeText(Events.this, "contains", Toast.LENGTH_SHORT).show();
-                    }else {
+                    } else {
                         String category = categoryChoices.getSelectedItem().toString();
                         selectedCategoriesList.add(category);
                         final TextView textView = new TextView(Events.this);
@@ -337,7 +390,6 @@ public class Events extends AppCompatActivity {
                         textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         linearLayout.addView(textView);
                     }
-
 
 
                 }
@@ -382,15 +434,29 @@ public class Events extends AppCompatActivity {
         } else {
             department = (String) departmentChoices.getSelectedItem();
         }
+        if(mSelectedImagesUrls.size()>0){
+            image = mSelectedImagesUrls.get(0);
+        }else{
+            image ="";
+        }
         date = epoch;
         uid = mEventRef.push().getKey();
-
+        String college = "";
+        if (collegeChoices.getSelectedItemPosition() > 1) {
+            college = collegeChoices.getSelectedItem().toString();
+        }
         mImageUrl.setText(image);
         if (checkFields()) {
 
-            event = new Event(selectedCategoriesList, uid, venue, time, description, department, image, date, title, collegeChoices.getSelectedItem().toString());
+            event = new Event(selectedCategoriesList, uid, venue, time, description, department, image, date, title, college);
 
-            mEventRef.child(uid).setValue(event);
+            mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(Events.this, "Event has been submitted for Approval.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
         }
 
     }
@@ -450,13 +516,7 @@ public class Events extends AppCompatActivity {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             Log.e("tag", "Position  = " + Integer.toString(position));
-            if (position == 0 || position == 1) {
-                departmentChoices.setVisibility(View.GONE);
-                departmentChoices.setSelection(0);
-            } else {
-                departmentChoices.setVisibility(View.VISIBLE);
-                initDepartmentSpinner();
-            }
+
         }
 
         @Override
