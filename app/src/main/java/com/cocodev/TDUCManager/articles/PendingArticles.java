@@ -9,30 +9,24 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.cocodev.TDUCManager.Article_details;
-import com.cocodev.TDUCManager.Articles;
-import com.cocodev.TDUCManager.Events;
 import com.cocodev.TDUCManager.MainActivity;
-import com.cocodev.TDUCManager.PostNotice;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
 import com.cocodev.TDUCManager.pArticleDetails;
-import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 
-public class PendingArticles extends Fragment implements AbsListView.OnScrollListener {
+public class PendingArticles extends Fragment {
 
 
     private int preLast = 0;
@@ -56,7 +50,7 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
         super.onCreate(savedInstanceState);
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = firebaseDatabase.getReference().child("PendingArticles").child(MainActivity.CollegeName).child("Pending");
+        databaseReference = firebaseDatabase.getReference().child("PendingArticles").child(MainActivity.CollegeName).child("Articles");
 
     }
 
@@ -67,33 +61,6 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_submitted_articles, container, false);
         mListView = (ListView) view.findViewById(R.id.listView_articleHolder);
-        com.github.clans.fab.FloatingActionMenu submit = (com.github.clans.fab.FloatingActionMenu) view.findViewById(R.id.post);
-        FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
-        FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
-        FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
-
-        submitArticle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Articles.class);
-                startActivity(i);
-            }
-        });
-        submitEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Events.class);
-                startActivity(i);
-            }
-        });
-        submitNotice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), PostNotice.class);
-                startActivity(i);
-            }
-        });
-
 
         //view to be added while loading more data;
         mFooterView = LayoutInflater.from(getContext()).inflate(R.layout.footer_progress_bar, null);
@@ -159,7 +126,7 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
 
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(onItemClickListener);
-        mListView.setOnScrollListener(this);
+
 
         return view;
     }
@@ -207,40 +174,4 @@ public class PendingArticles extends Fragment implements AbsListView.OnScrollLis
 
     }
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        //do nothing
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        // Make your calculation stuff here. You have all your
-        // needed info from the parameters of this function.
-
-        // Sample calculation to determine if the last
-        // item is fully visible.
-        final int lastItem = firstVisibleItem + visibleItemCount - mListView.getFooterViewsCount();
-
-        if (lastItem == totalItemCount) {
-            if (preLast != lastItem) {
-                Log.e("his", Integer.toString(preLast) + " " + Integer.toString(lastItem));
-                if (mListView.getFooterViewsCount() == 0) {
-                    mListView.addFooterView(mFooterView);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mListView == null)
-                                return;
-                            mListView.removeFooterView(mFooterView);
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    }, 5000);
-                }
-                preLast = lastItem;
-                //to avoid multiple calls for last item
-                mAdapter.populateMoreList(mListView, mFooterView);
-            }
-        }
-
-    }
 }

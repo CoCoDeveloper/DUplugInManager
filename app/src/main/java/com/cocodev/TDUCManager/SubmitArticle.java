@@ -50,7 +50,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Articles extends AppCompatActivity {
+public class SubmitArticle extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath;
@@ -116,9 +116,11 @@ public class Articles extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_articles);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Upload Articles");
+        actionBar.setTitle("Upload SubmitArticle");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
+
+
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
@@ -128,7 +130,7 @@ public class Articles extends AppCompatActivity {
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         writerUID = mFirebaseUser.getUid();
 
-        mArticleRef = FirebaseDatabase.getInstance().getReference().child("Articles");
+        mArticleRef = FirebaseDatabase.getInstance().getReference().child("SubmitArticle");
 
         mTagline = (EditText) findViewById(R.id.editText_tagline);
         mTitle = (EditText) findViewById(R.id.editText_article_title);
@@ -160,7 +162,7 @@ public class Articles extends AppCompatActivity {
                     mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
                     mMultiImageSelector.multi();
                     mMultiImageSelector.origin(mSelectedImagesList);
-                    mMultiImageSelector.start(Articles.this, REQUEST_IMAGE);
+                    mMultiImageSelector.start(SubmitArticle.this, REQUEST_IMAGE);
 
                 }
             }
@@ -190,7 +192,7 @@ public class Articles extends AppCompatActivity {
             Iterator<Uri> iterator = mSelectedImagesUri.iterator();
 
             while (iterator.hasNext()){
-                StorageReference childRef = storageReference.child("Articles").child(Uid).child(mArticleRef.push().getKey());
+                StorageReference childRef = storageReference.child("SubmitArticle").child(Uid).child(mArticleRef.push().getKey());
                 //uploading the image
 
                 UploadTask uploadTask = childRef.putFile((iterator.next()));
@@ -335,7 +337,7 @@ public class Articles extends AppCompatActivity {
                 arrayAdapter,
                 R.layout.category_spinner_row_nothing_selected,
                 this));
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Articles");
+        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("SubmitArticle");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -425,7 +427,7 @@ public class Articles extends AppCompatActivity {
 //            FirebaseDatabase.getInstance().getReference()
 //                    .child("EmployeeContent")
 //                    .child(MainActivity.currentUser.getUid())
-//                    .child("Articles")
+//                    .child("SubmitArticle")
 //                    .child(Uid)
 //                    .setValue(employeeContentArticle);
 //
@@ -439,7 +441,7 @@ public class Articles extends AppCompatActivity {
             FirebaseDatabase.getInstance().getReference()
                     .child("College Content")
                     .child((String) collegeChoices.getSelectedItem())
-                    .child("Articles")
+                    .child("SubmitArticle")
                     .child(Uid)
                     .setValue(article);
 

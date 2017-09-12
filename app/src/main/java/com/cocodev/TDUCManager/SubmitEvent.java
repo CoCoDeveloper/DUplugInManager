@@ -19,19 +19,19 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -40,6 +40,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Gallery.Adapters.ImagesAdapter;
+import com.cocodev.TDUCManager.Utility.EmployeeContentEvents;
 import com.cocodev.TDUCManager.Utility.Event;
 import com.cocodev.TDUCManager.Utility.MultiImageSelector;
 import com.cocodev.TDUCManager.Utility.User;
@@ -63,7 +64,9 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 
-public class Events extends AppCompatActivity {
+import io.github.mthli.knife.KnifeText;
+
+public class SubmitEvent extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
@@ -72,10 +75,10 @@ public class Events extends AppCompatActivity {
 
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
-    EditText mTitle, mDesc, mVenue, mImageUrl;
-    Spinner departmentChoices, collegeChoices, categoryChoices;
+    EditText mTitle,mVenue, mImageUrl;
+    Spinner collegeChoices, categoryChoices;
     TextView mDate, mTime;
-    Button mSubmit, mImagePicker, mDatePicker, mTimePicker, mAddCustomCategory;
+    Button mSubmit, mImagePicker, mDatePicker, mTimePicker;
     Event event;
     private RecyclerView recyclerViewImages;
     private GridLayoutManager gridLayoutManager;
@@ -93,7 +96,9 @@ public class Events extends AppCompatActivity {
     private Calendar calendar;
     private int day, month, year, hour, minute;
     private long epoch, timeEpoch;
-    String uid, description, title, image, venue, department, newCategory;
+    private KnifeText mDesc;
+
+    String uid, description, title, image, venue, newCategory;
     Long time, date;
 
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -107,7 +112,7 @@ public class Events extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_events);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Upload Events");
+        actionBar.setTitle("Upload Event");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -121,10 +126,10 @@ public class Events extends AppCompatActivity {
         mEventRef = FirebaseDatabase.getInstance().getReference().child("PendingEvents"); //Changed Target Location
 
         mTitle = (EditText) findViewById(R.id.editText_event_title);
-        mDesc = (EditText) findViewById(R.id.editText_event_desc);
+        mDesc = (KnifeText) findViewById(R.id.editText_event_desc);
         mVenue = (EditText) findViewById(R.id.editText_event_venue);
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
-        departmentChoices = (Spinner) findViewById(R.id.spinner_event_department);
+
         collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
         categoryChoices = (Spinner) findViewById(R.id.spinner_event_category);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
@@ -150,6 +155,17 @@ public class Events extends AppCompatActivity {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
 
+       // ImageGetter coming soon...
+
+        setupBold();
+        setupItalic();
+        setupUnderline();
+        setupStrikethrough();
+        setupBullet();
+        setupQuote();
+        setupLink();
+        setupClear();
+
         showDate(day, month + 1, year);
         showTime(hour, minute);
 
@@ -170,6 +186,8 @@ public class Events extends AppCompatActivity {
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 uploadImage();
             }
         });
@@ -181,7 +199,7 @@ public class Events extends AppCompatActivity {
                     mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
                     mMultiImageSelector.multi();
                     mMultiImageSelector.origin(mSelectedImagesList);
-                    mMultiImageSelector.start(Events.this, REQUEST_IMAGE);
+                    mMultiImageSelector.start(SubmitEvent.this, REQUEST_IMAGE);
 
                 }
             }
@@ -194,11 +212,11 @@ public class Events extends AppCompatActivity {
 
             title = mTitle.getText().toString();
             venue = mVenue.getText().toString();
-            description = Html.toHtml(mDesc.getText(), Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+            description = mDesc.toHtml();
         } else {
             title = mTitle.getText().toString();
             venue = mVenue.getText().toString();
-            description = Html.toHtml(mDesc.getText());
+            description = mDesc.toHtml();
         }
 
         time = calendar.getTimeInMillis();
@@ -209,7 +227,7 @@ public class Events extends AppCompatActivity {
         if (!checkFields())
             return;
         uid = mEventRef.push().getKey();
-        if (mSelectedImagesList != null) {
+        if (mSelectedImagesList != null && mSelectedImagesList.size()!=0) {
             progressDialog.show();
             Iterator<Uri> iterator = mSelectedImagesUri.iterator();
 
@@ -373,7 +391,7 @@ public class Events extends AppCompatActivity {
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
 
         arrayAdapter.add("Add New Category");
-        arrayAdapter.add("University of Delhi");
+
         categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -381,14 +399,27 @@ public class Events extends AppCompatActivity {
                     addNewCategory();
                 } else if (position > 1) {
                     if (selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())) {
-                        Toast.makeText(Events.this, "contains", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SubmitEvent.this, "This category has already been selected.", Toast.LENGTH_SHORT).show();
                     } else {
-                        String category = categoryChoices.getSelectedItem().toString();
+                        final String category = categoryChoices.getSelectedItem().toString();
                         selectedCategoriesList.add(category);
-                        final TextView textView = new TextView(Events.this);
+                        final View childView = LayoutInflater.from(SubmitEvent.this).inflate(R.layout.category_list_view,null);
+                        childView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                linearLayout.removeView(childView);
+                                selectedCategoriesList.remove(category);
+                            }
+                        });
+                        childView.findViewById(R.id.deleteCategory).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                childView.callOnClick();
+                            }
+                        });
+                        TextView textView = (TextView) childView.findViewById(R.id.category_title);
                         textView.setText(category);
-                        textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-                        linearLayout.addView(textView);
+                        linearLayout.addView(childView);
                     }
 
 
@@ -429,11 +460,7 @@ public class Events extends AppCompatActivity {
 
     private void bindData() {
 
-        if (departmentChoices.getSelectedItemPosition() == 0) {
-            department = "";
-        } else {
-            department = (String) departmentChoices.getSelectedItem();
-        }
+
         if(mSelectedImagesUrls.size()>0){
             image = mSelectedImagesUrls.get(0);
         }else{
@@ -448,15 +475,22 @@ public class Events extends AppCompatActivity {
         mImageUrl.setText(image);
         if (checkFields()) {
 
-            event = new Event(selectedCategoriesList, uid, venue, time, description, department, image, date, title, college);
+            event = new Event(selectedCategoriesList,uid, venue, time, description, image, date, title, college,MainActivity.currentUser.getUid());
 
             mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(Events.this, "Event has been submitted for Approval.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SubmitEvent.this, "Event has been submitted for Approval.", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             });
+
+            EmployeeContentEvents temp = new EmployeeContentEvents(uid,0,college);
+            FirebaseDatabase.getInstance().getReference().child("EmployeeContent").child(MainActivity.currentUser.getUid())
+                    .child("Events")
+                    .child(uid)
+                    .setValue(temp);
+
         }
 
     }
@@ -525,40 +559,40 @@ public class Events extends AppCompatActivity {
         }
     };
 
-    private void initDepartmentSpinner() {
-        final ArrayList<String> departments = new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departments);
-        departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
-                arrayAdapter,
-                R.layout.contact_spinner_row_nothing_selected_department,
-                this));
-
-        DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
-                .child((String) collegeChoices.getSelectedItem());
-
-        departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while (iterator.hasNext()) {
-                    DataSnapshot temp = iterator.next();
-                    //get name of the department
-                    String department = temp.getKey().toString();
-                    departments.add(department);
-                    //to reflect changes in the ui
-                    arrayAdapter.notifyDataSetChanged();
-                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //We will see this later
-
-            }
-        });
-
-    }
+//    private void initDepartmentSpinner() {
+//        final ArrayList<String> departments = new ArrayList<String>();
+//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departments);
+//        departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
+//                arrayAdapter,
+//                R.layout.contact_spinner_row_nothing_selected_department,
+//                this));
+//
+//        DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
+//                .child((String) collegeChoices.getSelectedItem());
+//
+//        departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
+//                while (iterator.hasNext()) {
+//                    DataSnapshot temp = iterator.next();
+//                    //get name of the department
+//                    String department = temp.getKey().toString();
+//                    departments.add(department);
+//                    //to reflect changes in the ui
+//                    arrayAdapter.notifyDataSetChanged();
+//                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                //We will see this later
+//
+//            }
+//        });
+//
+//    }
 
     private static Long getCurrentTime() {
         Long time = System.currentTimeMillis();
@@ -599,4 +633,191 @@ public class Events extends AppCompatActivity {
         }
     }
 
+    private void setupBold() {
+        ImageButton bold = (ImageButton) findViewById(R.id.bold);
+
+        bold.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.bold(!mDesc.contains(KnifeText.FORMAT_BOLD));
+            }
+        });
+
+        bold.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_bold, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupItalic() {
+        ImageButton italic = (ImageButton) findViewById(R.id.italic);
+
+        italic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.italic(!mDesc.contains(KnifeText.FORMAT_ITALIC));
+            }
+        });
+
+        italic.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_italic, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupUnderline() {
+        ImageButton underline = (ImageButton) findViewById(R.id.underline);
+
+        underline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.underline(!mDesc.contains(KnifeText.FORMAT_UNDERLINED));
+            }
+        });
+
+        underline.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_underline, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupStrikethrough() {
+        ImageButton strikethrough = (ImageButton) findViewById(R.id.strikethrough);
+
+        strikethrough.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.strikethrough(!mDesc.contains(KnifeText.FORMAT_STRIKETHROUGH));
+            }
+        });
+
+        strikethrough.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_strikethrough, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupBullet() {
+        ImageButton bullet = (ImageButton) findViewById(R.id.bullet);
+
+        bullet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.bullet(!mDesc.contains(KnifeText.FORMAT_BULLET));
+            }
+        });
+
+
+        bullet.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_bullet, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupQuote() {
+        ImageButton quote = (ImageButton) findViewById(R.id.quote);
+
+        quote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.quote(!mDesc.contains(KnifeText.FORMAT_QUOTE));
+            }
+        });
+
+        quote.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_quote, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupLink() {
+        ImageButton link = (ImageButton) findViewById(R.id.link);
+
+        link.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLinkDialog();
+            }
+        });
+
+        link.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_insert_link, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void setupClear() {
+        ImageButton clear = (ImageButton) findViewById(R.id.clear);
+
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDesc.clearFormats();
+            }
+        });
+
+        clear.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Toast.makeText(SubmitEvent.this, R.string.toast_format_clear, Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
+    }
+
+    private void showLinkDialog() {
+        final int start = mDesc.getSelectionStart();
+        final int end = mDesc.getSelectionEnd();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setCancelable(false);
+
+        View view = getLayoutInflater().inflate(R.layout.dialog_link, null, false);
+        final EditText editText = (EditText) view.findViewById(R.id.edit);
+        builder.setView(view);
+        builder.setTitle(R.string.dialog_title);
+
+        builder.setPositiveButton(R.string.dialog_button_ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String link = editText.getText().toString().trim();
+                if (TextUtils.isEmpty(link)) {
+                    return;
+                }
+
+                // When KnifeText lose focus, use this method
+                mDesc.link(link, start, end);
+            }
+        });
+
+        builder.setNegativeButton(R.string.dialog_button_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // DO NOTHING HERE
+            }
+        });
+
+        builder.create().show();
+    }
 }

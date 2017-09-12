@@ -19,15 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Article_details;
-import com.cocodev.TDUCManager.Articles;
-import com.cocodev.TDUCManager.Events;
 import com.cocodev.TDUCManager.MainActivity;
-import com.cocodev.TDUCManager.PostNotice;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
-import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -75,32 +71,6 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_submitted_articles, container, false);
         mListView = (ListView) view.findViewById(R.id.listView_articleHolder);
-        com.github.clans.fab.FloatingActionMenu submit = (com.github.clans.fab.FloatingActionMenu) view.findViewById(R.id.post);
-        FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
-        FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
-        FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
-
-        submitArticle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Articles.class);
-                startActivity(i);
-            }
-        });
-        submitEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Events.class);
-                startActivity(i);
-            }
-        });
-        submitNotice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), PostNotice.class);
-                startActivity(i);
-            }
-        });
 
 
         //view to be added while loading more data;
@@ -168,8 +138,8 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
                     dbref = firebaseDatabase.getReference().child("PendingArticles")
                             .child(MainActivity.CollegeName).child("Rejected").child(model.getA_Uid());
                 }else{
-                    dbref = firebaseDatabase.getReference().child("Articles").child(model.getA_Uid());
-                    dbref2 = firebaseDatabase.getReference().child("College Content").child(MainActivity.CollegeName).child("Articles").child(model.getA_Uid());
+                    dbref = firebaseDatabase.getReference().child("SubmitArticle").child(model.getA_Uid());
+                    dbref2 = firebaseDatabase.getReference().child("College Content").child(MainActivity.CollegeName).child("SubmitArticle").child(model.getA_Uid());
                     dbref2.addListenerForSingleValueEvent(valueEventListener);
                 }
                 dbref.addListenerForSingleValueEvent(valueEventListener);

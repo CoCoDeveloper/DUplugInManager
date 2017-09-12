@@ -32,11 +32,15 @@ dependencies {
     compile 'com.firebaseui:firebase-ui:2.0.1'
     compile 'com.h6ah4i.android.tablayouthelper:tablayouthelper:0.8.0'
     compile 'com.github.clans:fab:1.6.2'
+    compile 'jp.wasabeef:richeditor-android:1.2.2'
+    compile 'com.github.mthli:Knife:v1.1'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
     testCompile 'junit:junit:4.12'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5.1'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5.1'
 }
+
+
 
 
 

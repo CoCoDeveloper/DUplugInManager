@@ -10,5 +10,7 @@
     <color name="done_button_text">#094578</color>
     <color name="bottom_album_bg">#cc094578</color>
     <color name="select_image">#88094578</color>
-
+    <color name="blue_200">#FF90CAF9</color>
+    <color name="blue_500">#FF2196F3</color>
+    <color name="blue_700">#FF1976D2</color>
 </resources>

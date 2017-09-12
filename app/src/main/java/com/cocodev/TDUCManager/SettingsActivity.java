@@ -25,7 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class SA extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     public static final String KEY_COLLEGE    = "com.cocodev.myapplication.collegechoices";
     public static final String KEY_DEPARTMENT = "com.cocodev.myapplication.departmentchoices";
@@ -39,7 +39,7 @@ public class SA extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sa);
-        DatabaseReference hpDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Categories").child("Articles");
+        DatabaseReference hpDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Categories").child("SubmitArticle");
         hpDatabaseReference.addListenerForSingleValueEvent(hpValueEventListener);
         DatabaseReference epDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Categories").child("SubmitEvent");
         epDatabaseReference.addListenerForSingleValueEvent(epValueEventListener);
@@ -54,7 +54,7 @@ public class SA extends AppCompatActivity {
         final ArrayList<String> departments =new ArrayList<String>();
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,departments);
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList").child("Keshav Mahavidyalya");
-        SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SA.this);
+        SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this);
         final String selection = sharedpref.getString(KEY_DEPARTMENT,"");
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -74,7 +74,7 @@ public class SA extends AppCompatActivity {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(SA.this,"There was some error establishing connection with the server",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingsActivity.this,"There was some error establishing connection with the server",Toast.LENGTH_SHORT).show();
             }
 
         });
@@ -92,7 +92,7 @@ public class SA extends AppCompatActivity {
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item,colleges);
         DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
 
-        SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SA.this);
+        SharedPreferences sharedpref = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this);
         final String selection = sharedpref.getString(KEY_COLLEGE,"");
 
         collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -118,7 +118,7 @@ public class SA extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //We will see this later
-                Toast.makeText(SA.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingsActivity.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
             }
         });
         collegeChoices.setAdapter(arrayAdapter);
@@ -133,7 +133,7 @@ public class SA extends AppCompatActivity {
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
             String college = (String) parent.getItemAtPosition(position);
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SA.this);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(KEY_COLLEGE,college);
             editor.commit();
@@ -151,7 +151,7 @@ public class SA extends AppCompatActivity {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
             String department = (String) parent.getItemAtPosition(position);
-            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SA.this);
+            SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString(KEY_DEPARTMENT,department);
             editor.commit();
@@ -188,7 +188,7 @@ public class SA extends AppCompatActivity {
         }
         @Override
         public void onCancelled(DatabaseError databaseError) {
-            Toast.makeText(SA.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(SettingsActivity.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -217,7 +217,7 @@ public class SA extends AppCompatActivity {
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(SA.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingsActivity.this,"There has been some problem connecting to the server.",Toast.LENGTH_SHORT).show();
         }
     };
 

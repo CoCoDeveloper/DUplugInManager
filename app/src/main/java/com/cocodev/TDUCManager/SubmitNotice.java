@@ -59,7 +59,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class PostNotice extends AppCompatActivity {
+public class SubmitNotice extends AppCompatActivity {
 
     DatabaseReference mNoticeRef;
     EditText mDesc,mTitle;
@@ -132,7 +132,7 @@ public class PostNotice extends AppCompatActivity {
                     mMultiImageSelector.count(MAX_IMAGE_SELECTION_LIMIT);
                     mMultiImageSelector.multi();
                     mMultiImageSelector.origin(mSelectedImagesList);
-                    mMultiImageSelector.start(PostNotice.this, REQUEST_IMAGE);
+                    mMultiImageSelector.start(SubmitNotice.this, REQUEST_IMAGE);
 
                 }
             }
@@ -226,7 +226,7 @@ public class PostNotice extends AppCompatActivity {
                 mNoticeRef.child(uid).setValue(notice).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(PostNotice.this, "Notice Uploaded!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(SubmitNotice.this, "Notice Uploaded!", Toast.LENGTH_LONG).show();
                     }
                 });
             }

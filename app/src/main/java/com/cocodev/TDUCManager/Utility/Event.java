@@ -13,25 +13,27 @@ public class Event {
     private String venue;
     private Long time;
     private String Description;
-    private String department;
+
     private String url;
     private Long date;
     private String title;
     private String college;
+    private String organiser_uid;
 
     public Event(){}
 
-    public Event(ArrayList<String> categoryList, String UID, String venue, Long time, String description, String department, String url, Long date, String title, String college) {
+    public Event(ArrayList<String> categoryList, String UID, String venue, Long time, String description, String url, Long date, String title, String college, String organiser_uid) {
         this.categoryList = categoryList;
         this.UID = UID;
         this.venue = venue;
         this.time = time;
         Description = description;
-        this.department = department;
+
         this.url = url;
         this.date = date;
         this.title = title;
         this.college = college;
+        this.organiser_uid = organiser_uid;
     }
 
     public ArrayList<String> getCategoryList() {
@@ -56,14 +58,6 @@ public class Event {
 
     public void setDate(Long date) {
         this.date = date;
-    }
-
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
     }
 
     public String getUID() {
@@ -113,4 +107,13 @@ public class Event {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public String getOrganiser_uid() {
+        return organiser_uid;
+    }
+
+    public void setOrganiser_uid(String organiser_uid) {
+        this.organiser_uid = organiser_uid;
+    }
 }
+

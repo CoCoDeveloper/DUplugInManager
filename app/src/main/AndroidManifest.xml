@@ -11,8 +11,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        >
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -20,7 +19,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Article_details" />
         <activity
-            android:name=".SA"
+            android:name=".SettingsActivity"
             android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -33,28 +32,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Articles" />
-        <activity android:name=".PostNotice" />
-        <activity android:name=".Events"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
-        </activity>
-        <activity android:name=".signin"
-           />
-        <activity android:name=".signup"
-            ></activity>    `
+        <activity android:name=".SubmitArticle" />
+        <activity android:name=".SubmitNotice" />
+        <activity
+            android:name=".SubmitEvent"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
+        <activity android:name="com.onegravity.rteditor.media.choose.MediaChooserActivity" />
+        <activity android:name="com.onegravity.rteditor.media.crop.CropImageActivity" />
+        <activity android:name=".signin" />
+        <activity android:name=".signup" />
+        `
         <activity
             android:name=".MultiImageSelectorActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar">
-
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_path" />
         </activity>
-        <activity android:name=".EventDetails"></activity>
-
-        <activity android:name=".pArticleDetails"></activity>
+        <activity android:name=".PendingEventDetails" />
+        <activity android:name=".pArticleDetails" />
+        <activity android:name=".submittedEventDetails"></activity>
     </application>
 
 </manifest>

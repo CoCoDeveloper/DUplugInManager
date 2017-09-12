@@ -14,14 +14,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.cocodev.TDUCManager.Articles;
-import com.cocodev.TDUCManager.EventDetails;
-import com.cocodev.TDUCManager.Events;
-import com.cocodev.TDUCManager.PostNotice;
+import com.cocodev.TDUCManager.PendingEventDetails;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.Utility.Event;
 import com.firebase.ui.database.FirebaseListAdapter;
-import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -57,33 +53,10 @@ public class PendingEvents extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_pending_events, container, false);
         mListView = (ListView) view.findViewById(R.id.listView_eventHolder);
-        com.github.clans.fab.FloatingActionMenu submit = (com.github.clans.fab.FloatingActionMenu) view.findViewById(R.id.post);
-        FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
-        FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
-        FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
 
-        submitArticle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Articles.class);
-                startActivity(i);
-            }
-        });
-        submitEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), Events.class);
-                startActivity(i);
-            }
-        });
-        submitNotice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(getContext(), PostNotice.class);
-                startActivity(i);
-            }
-        });
-
+        TextView textView = (TextView) view.findViewById(R.id.eventHolder_emptyView);
+        textView.setText("There are currently no articles under this Category.");
+        mListView.setEmptyView(textView);
          mAdapter = new FirebaseListAdapter<Event>(getActivity(),Event.class, R.layout.events_item,databaseReference) {
             @Override
             protected void populateView(View v, Event model, int position) {
@@ -109,7 +82,7 @@ public class PendingEvents extends Fragment {
 
                 final TextView UID  = (TextView) view.findViewById(R.id.event_UID);
                 String uid = (String) UID.getText();
-                Intent intent = new Intent(getContext(), EventDetails.class);
+                Intent intent = new Intent(getContext(), PendingEventDetails.class);
                 intent.putExtra("uid",uid);
                 startActivity(intent);
             }

@@ -23,6 +23,8 @@ import com.cocodev.TDUCManager.Utility.User;
 import com.cocodev.TDUCManager.articles.PendingArticles;
 import com.cocodev.TDUCManager.articles.SubmittedArticles;
 import com.cocodev.TDUCManager.events.PendingEvents;
+import com.cocodev.TDUCManager.events.SubmittedEvents;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public static String CollegeName;
     private final String KEY_CLEARENCE_LEVEL = "key_clearence_level";
     private final int REQUEST_CODE_SETTINGS_ACTIVITY = 1001;
-    String[] submenus = {"Articles","PostNotice","SubmitEvent"};
+    String[] submenus = {"SubmitArticle","SubmitNotice","SubmitEvent"};
     private String CURRENT_FRAGMENT = "currentFragment";
     private final int HOME_FRAGMENT =0;
     private final int NOTICE_BOARD_FRAGMENT =1;
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setUpFloatingActionButtons();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -86,27 +89,59 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(getSupportFragmentManager().findFragmentById(R.id.fragment_layout)==null){
             getSupportFragmentManager().beginTransaction().replace(
                     R.id.fragment_layout,
-                    new PendingArticles()
+                    new SubmittedEvents()
             ).commit();
             navigationView.setCheckedItem(R.id.home);
         }
 
     }
 
+    private void setUpFloatingActionButtons() {
+        FloatingActionButton submitArticle = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
+        FloatingActionButton submitEvent = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
+        FloatingActionButton submitNotice = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
+        FloatingActionButton submitFest = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
+
+        submitArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, SubmitArticle.class);
+                startActivity(i);
+            }
+        });
+        submitEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, SubmitEvent.class);
+                startActivity(i);
+            }
+        });
+        submitNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, SubmitNotice.class);
+                startActivity(i);
+            }
+        });
+    }
+
     private void populateMenu() {
-        MenuItem pendingArticles = menu.add("Submitted Articles");
+        MenuItem submittedArticles = menu.add("Submitted Articles");
+        submittedArticles.setOnMenuItemClickListener(menuItemClickListener);
+        submittedArticles.setCheckable(true);
+        MenuItem pendingArticles = menu.add("Pending Articles");
         pendingArticles.setOnMenuItemClickListener(menuItemClickListener);
         pendingArticles.setCheckable(true);
-        MenuItem pendingEvent = menu.add("Pending Events");
-        pendingEvent.setOnMenuItemClickListener(menuItemClickListener);
-        pendingEvent.setCheckable(true);
+        MenuItem pendingEvents = menu.add("Pending Events");
+        pendingEvents.setOnMenuItemClickListener(menuItemClickListener);
+        pendingEvents.setCheckable(true);
 
 
     }
 
     private void setCollegeName() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        CollegeName = sharedPreferences.getString(SA.KEY_COLLEGE,"");
+        CollegeName = sharedPreferences.getString(SettingsActivity.KEY_COLLEGE,"");
     }
 
     private MenuItem.OnMenuItemClickListener menuItemClickListener = new MenuItem.OnMenuItemClickListener() {
@@ -119,12 +154,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 ).commit();
 
             }
-            if(item.getTitle().equals("Pending Events")) {
+            if(item.getTitle().equals("Pending Articles")) {
+                getSupportFragmentManager().beginTransaction().replace(
+                        R.id.fragment_layout,
+                        new PendingArticles()
+                ).commit();
+
+            }
+            if(item.getTitle().equals("Pending Events")){
                 getSupportFragmentManager().beginTransaction().replace(
                         R.id.fragment_layout,
                         new PendingEvents()
                 ).commit();
-
             }
             return false;
         }
@@ -164,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent;
         switch(id){
             case R.id.action_settings:
-                intent = new Intent(this,SA.class);
+                intent = new Intent(this,SettingsActivity.class);
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
                 return true;
@@ -195,11 +236,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (id == R.id.home) {
             // Handle the camera action
-            SubmittedArticles submittedArticles = new SubmittedArticles();
+            SubmittedEvents submittedEvents = new SubmittedEvents();
             Bundle bundle = new Bundle();
-            getSupportActionBar().setTitle("Home");
+
             FragmentManager manager = getSupportFragmentManager();
-            manager.beginTransaction().replace(R.id.fragment_layout,submittedArticles,null).commit();
+            manager.beginTransaction().replace(R.id.fragment_layout,submittedEvents,null).commit();
 
         }
 

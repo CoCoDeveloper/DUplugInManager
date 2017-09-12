@@ -7,7 +7,7 @@ package com.cocodev.TDUCManager.Utility;
 public class EmployeeContentArticle {
     private String A_Uid;
     private int status;
-
+    private String college;
     public EmployeeContentArticle() {
     }
 
@@ -30,5 +30,13 @@ public class EmployeeContentArticle {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
     }
 }
