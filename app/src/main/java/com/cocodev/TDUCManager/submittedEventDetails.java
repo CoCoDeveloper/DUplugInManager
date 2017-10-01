@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
@@ -13,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -240,6 +242,11 @@ public class submittedEventDetails extends AppCompatActivity {
 //        });
         BottomNavigationView bottomNavigationView = (BottomNavigationView)
                 findViewById(R.id.navigation);
+        bottomNavigationView.setItemIconTintList(null);
+        MenuItem menuItem1=bottomNavigationView.getMenu().getItem(0);
+        MenuItem menuItem2=bottomNavigationView.getMenu().getItem(1);
+        menuItem1.setIcon(R.drawable.save);
+        menuItem2.setIcon(R.drawable.delete);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override

@@ -302,6 +302,11 @@ public class PendingEventDetails extends AppCompatActivity {
 //        });
         BottomNavigationView bottomNavigationView = (BottomNavigationView)
                 findViewById(R.id.navigation);
+        bottomNavigationView.setItemIconTintList(null);
+        MenuItem menuItem1=bottomNavigationView.getMenu().getItem(0);
+        MenuItem menuItem2=bottomNavigationView.getMenu().getItem(1);
+        menuItem1.setIcon(R.drawable.accept);
+        menuItem2.setIcon(R.drawable.reject);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override

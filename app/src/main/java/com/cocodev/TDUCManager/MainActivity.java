@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         final NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setItemIconTintList(null);
         menu = navigationView.getMenu();
         if(currentUser.getClearenceLevel()>=10){
             populateMenu();
@@ -129,12 +130,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuItem submittedArticles = menu.add("Submitted Articles");
         submittedArticles.setOnMenuItemClickListener(menuItemClickListener);
         submittedArticles.setCheckable(true);
+        submittedArticles.setIcon(R.drawable.submittedarticles);
         MenuItem pendingArticles = menu.add("Pending Articles");
         pendingArticles.setOnMenuItemClickListener(menuItemClickListener);
         pendingArticles.setCheckable(true);
+        pendingArticles.setIcon(R.drawable.pendingarticles);
         MenuItem pendingEvents = menu.add("Pending Events");
         pendingEvents.setOnMenuItemClickListener(menuItemClickListener);
         pendingEvents.setCheckable(true);
+        pendingEvents.setIcon(R.drawable.pendingevents);
 
 
     }

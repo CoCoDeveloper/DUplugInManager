@@ -2,8 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 <item
     android:id="@+id/action_save"
-    android:title="Save" />
+    android:title="Save"
+    android:icon="@drawable/save"
+    android:enabled="true"/>
 <item
     android:id="@+id/action_delete"
-    android:title="Delete" />
+    android:title="Delete"
+    android:icon="@drawable/delete"/>
 </menu>
