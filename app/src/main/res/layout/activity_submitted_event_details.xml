@@ -1,225 +1,244 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <LinearLayout
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        tools:context="com.cocodev.duplugin.Event_details">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/event_image"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            app:srcCompat="@drawable/event_place_holder"
-            android:transitionName="event_share_image"/>
-
-        <TextView
-            android:id="@+id/event_detail_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:padding="8dp"
-            android:textColor="@color/black"
-            android:textSize="24sp" />
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"/>
+            android:orientation="vertical"
+            tools:context="com.cocodev.duplugin.Event_details">
 
-        <TextView
-            android:id="@+id/event_detail_time"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@mipmap/calendar"
-            android:drawablePadding="8dp"
-            android:paddingBottom="16dp"
-            android:paddingLeft="8dp"
-            android:paddingTop="16dp"
-            android:textSize="16sp" />
+            <ImageView
+                android:id="@+id/event_image"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:scaleType="centerCrop"
+                android:transitionName="event_share_image"
+                app:srcCompat="@drawable/event_place_holder" />
 
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"/>
+            <TextView
+                android:id="@+id/event_detail_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:padding="8dp"
+                android:textColor="@color/black"
+                android:textSize="24sp" />
 
-        <TextView
-            android:id="@+id/event_detail_place"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:drawablePadding="8dp"
-            android:drawableStart="@mipmap/place"
-            android:paddingBottom="16dp"
-            android:paddingStart="8dp"
-            android:paddingTop="16dp"
-            android:textSize="18sp" />
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            android:background="#c0c0c0"/>
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0" />
 
-        <HorizontalScrollView
-            android:id="@+id/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:background="@android:color/darker_gray"
-            android:scrollbars="none">
+            <TextView
+                android:id="@+id/event_detail_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@mipmap/calendar"
+                android:drawablePadding="8dp"
+                android:paddingBottom="16dp"
+                android:paddingLeft="8dp"
+                android:paddingTop="16dp"
+                android:textSize="16sp" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0" />
+
+            <TextView
+                android:id="@+id/event_detail_place"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:drawablePadding="8dp"
+                android:drawableStart="@mipmap/place"
+                android:paddingBottom="16dp"
+                android:paddingStart="8dp"
+                android:paddingTop="16dp"
+                android:textSize="18sp" />
+
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="2dp"
+                android:background="#c0c0c0" />
+
+            <HorizontalScrollView
+                android:id="@+id/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:background="@android:color/darker_gray"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/bold"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_bold"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/italic"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_italic"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/underline"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_underline"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/strikethrough"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_strikethrough"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/bullet"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_bullet"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/quote"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_quote"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/link"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_insert_link"></ImageButton>
+
+                    <ImageButton
+                        android:id="@+id/clear"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?android:selectableItemBackground"
+                        android:contentDescription="@null"
+                        android:scaleType="center"
+                        android:src="@drawable/ic_format_clear"></ImageButton>
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <io.github.mthli.knife.KnifeText
+                android:id="@+id/submittedEventDetails_knifeText"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_above="@id/tools"
+                android:layout_alignParentTop="true"
+                android:background="@android:color/transparent"
+                android:gravity="top|start"
+                android:paddingEnd="16dp"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:scrollbars="vertical"
+                app:bulletColor="@color/blue_500"
+                app:bulletGapWidth="@dimen/bullet_gap_width"
+                app:bulletRadius="@dimen/bullet_radius"
+                app:historyEnable="true"
+                app:historySize="99"
+                app:linkColor="@color/blue_500"
+                app:linkUnderline="true"
+                app:quoteCapWidth="@dimen/quote_gap_width"
+                app:quoteColor="@color/blue_500"
+                app:quoteStripeWidth="@dimen/quote_stripe_width"></io.github.mthli.knife.KnifeText>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="Categories"
+                android:textAppearance="@android:style/TextAppearance.Material.Large"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:id="@+id/layout_categoryList"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:orientation="vertical">
 
-                <ImageButton
-                    android:id="@+id/bold"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_bold"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/italic"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_italic"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/underline"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_underline"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/strikethrough"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_strikethrough"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/bullet"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_bullet"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/quote"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_quote"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/link"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_insert_link"></ImageButton>
-
-                <ImageButton
-                    android:id="@+id/clear"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:selectableItemBackground"
-                    android:contentDescription="@null"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_format_clear"></ImageButton>
 
             </LinearLayout>
 
-        </HorizontalScrollView>
+            <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal"-->
+            <!--android:layout_gravity="bottom"-->
+            <!--&gt;-->
 
-        <io.github.mthli.knife.KnifeText
-            android:id="@+id/submittedEventDetails_knifeText"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_above="@id/tools"
-            android:layout_alignParentTop="true"
-            android:background="@android:color/transparent"
-            android:gravity="top|start"
-            android:paddingEnd="16dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
-            android:paddingStart="16dp"
-            android:paddingTop="16dp"
-            android:scrollbars="vertical"
-            app:bulletColor="@color/blue_500"
-            app:bulletGapWidth="@dimen/bullet_gap_width"
-            app:bulletRadius="@dimen/bullet_radius"
-            app:historyEnable="true"
-            app:historySize="99"
-            app:linkColor="@color/blue_500"
-            app:linkUnderline="true"
-            app:quoteCapWidth="@dimen/quote_gap_width"
-            app:quoteColor="@color/blue_500"
-            app:quoteStripeWidth="@dimen/quote_stripe_width"></io.github.mthli.knife.KnifeText>
+            <!--<Button-->
+            <!--android:id="@+id/button_event_delete"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Delete" />-->
 
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="Categories"
-            android:textAppearance="@android:style/TextAppearance.Material.Large"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="30sp"
-            android:textStyle="bold" />
+            <!--<Button-->
+            <!--android:id="@+id/button_event_save"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1"-->
+            <!--android:text="Save" />-->
 
-        <LinearLayout
-            android:id="@+id/layout_categoryList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
+            <!--</LinearLayout>-->
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="bottom"
-            >
 
-            <Button
-                android:id="@+id/button_event_delete"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Delete" />
-
-            <Button
-                android:id="@+id/button_event_save"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Save" />
-
-        </LinearLayout>
-
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        app:itemIconTint="@color/nav_item_state_list"
+        app:itemTextColor="@color/nav_item_state_list"
+        app:menu="@menu/submitted_navigation_items" />
+</RelativeLayout>

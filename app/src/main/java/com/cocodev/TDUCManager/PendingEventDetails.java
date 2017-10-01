@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.Event;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -68,8 +72,8 @@ public class PendingEventDetails extends AppCompatActivity {
         final TextView titleView = (TextView) findViewById(R.id.event_detail_title);
         final TextView timeView = (TextView) findViewById(R.id.event_detail_time);
         final TextView eventPlace = (TextView) findViewById(R.id.event_detail_place);
-        final Button buttonReject = (Button) findViewById(R.id.button_event_reject);
-        final Button buttonAccept = (Button) findViewById(R.id.button_event_accept);
+//        final Button buttonReject = (Button) findViewById(R.id.button_event_reject);
+//        final Button buttonAccept = (Button) findViewById(R.id.button_event_accept);
         Layout_categoryList = (LinearLayout) findViewById(R.id.layout_categoryList);
         mDesc = (KnifeText) findViewById(R.id.pendingEventDetails_knifeText);
 
@@ -163,103 +167,250 @@ public class PendingEventDetails extends AppCompatActivity {
 
             }
         });
+//
+//        buttonReject.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child("RejectedEvents")
+//                        .child(uid)
+//                        .setValue(event);
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child("PendingEvents")
+//                        .child(uid)
+//                        .removeValue(new DatabaseReference.CompletionListener() {
+//                            @Override
+//                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                                Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child("EmployeeContent")
+//                        .child(event.getOrganiser_uid())
+//                        .child("Events")
+//                        .child(event.getUID())
+//                        .child("status")
+//                        .setValue(-1);
+//
+//
+//                finish();
+//            }
+//        });
 
-        buttonReject.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseDatabase.getInstance().getReference()
-                        .child("RejectedEvents")
-                        .child(uid)
-                        .setValue(event);
+//        buttonAccept.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                event.setDescription(mDesc.toHtml());
+//                Toast.makeText(PendingEventDetails.this, "Clicked", Toast.LENGTH_SHORT).show();
+//                if(event!=null){
+//                    Toast.makeText(PendingEventDetails.this, "Not null", Toast.LENGTH_SHORT).show();
+//                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+//                    ArrayList<String> categories = event.getCategoryList();
+//                    String college = event.getCollege();
+//                    if((!college.equals("")) && college!=null && (!college.equals("University of Delhi"))){
+//
+//                        databaseReference
+//                                .child("College Content")
+//                                .child(college)
+//                                .child("Events")
+//                                .child(event.getUID())
+//                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                    Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
+//                                    FirebaseDatabase.getInstance().getReference()
+//                                            .child("PendingEvents")
+//                                            .child(uid)
+//                                            .removeValue(new DatabaseReference.CompletionListener() {
+//                                                @Override
+//                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                                                    Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+//                                                }
+//                                            });
+//
+//                                    FirebaseDatabase.getInstance().getReference()
+//                                            .child("EmployeeContent")
+//                                            .child(event.getOrganiser_uid())
+//                                            .child("Events")
+//                                            .child(event.getUID())
+//                                            .child("status")
+//                                            .setValue(1);
+//
+//                                    finish();
+//                            }
+//                        });
+//
+//                        Iterator<String> iterator = categories.iterator();
+//                        while(iterator.hasNext()){
+//                            String category = iterator.next();
+//                            databaseReference
+//                                    .child("College Content")
+//                                    .child("Categories")
+//                                    .child("Events")
+//                                    .child(category)
+//                                    .child(event.getUID())
+//                                    .setValue(event.getUID());
+//                        }
+//
+//
+//
+//                    }else{
+//                        databaseReference
+//                                .child("Events")
+//                                .child(event.getUID())
+//                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
+//                                FirebaseDatabase.getInstance().getReference()
+//                                        .child("PendingEvents")
+//                                        .child(uid)
+//                                        .removeValue(new DatabaseReference.CompletionListener() {
+//                                            @Override
+//                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+//                                                Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+//                                            }
+//                                        });
+//                                FirebaseDatabase.getInstance().getReference()
+//                                        .child("EmployeeContent")
+//                                        .child(event.getOrganiser_uid())
+//                                        .child("Events")
+//                                        .child(event.getUID())
+//                                        .child("status")
+//                                        .setValue(1);
+//
+//                                finish();
+//                            }
+//                        });
+//
+//                        Iterator<String> iterator = categories.iterator();
+//                        while(iterator.hasNext()){
+//                            String category = iterator.next();
+//                            databaseReference
+//                                    .child("Categories")
+//                                    .child("Events")
+//                                    .child(category)
+//                                    .child(event.getUID())
+//                                    .setValue(event.getUID());
+//                        }
+//
+//                    }
+//                }
+//            }
+//        });
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener
+                (new BottomNavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_accept:
+                                event.setDescription(mDesc.toHtml());
+                                Toast.makeText(PendingEventDetails.this, "Clicked", Toast.LENGTH_SHORT).show();
+                                if(event!=null){
+                                    Toast.makeText(PendingEventDetails.this, "Not null", Toast.LENGTH_SHORT).show();
+                                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                                    ArrayList<String> categories = event.getCategoryList();
+                                    String college = event.getCollege();
+                                    if((!college.equals("")) && college!=null && (!college.equals("University of Delhi"))){
 
-                FirebaseDatabase.getInstance().getReference()
-                        .child("PendingEvents")
-                        .child(uid)
-                        .removeValue(new DatabaseReference.CompletionListener() {
-                            @Override
-                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                                        databaseReference
+                                                .child("College Content")
+                                                .child(college)
+                                                .child("Events")
+                                                .child(event.getUID())
+                                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
+                                                FirebaseDatabase.getInstance().getReference()
+                                                        .child("PendingEvents")
+                                                        .child(uid)
+                                                        .removeValue(new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                                Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
 
-                FirebaseDatabase.getInstance().getReference()
-                        .child("EmployeeContent")
-                        .child(event.getOrganiser_uid())
-                        .child("Events")
-                        .child(event.getUID())
-                        .child("status")
-                        .setValue(-1);
+                                                FirebaseDatabase.getInstance().getReference()
+                                                        .child("EmployeeContent")
+                                                        .child(event.getOrganiser_uid())
+                                                        .child("Events")
+                                                        .child(event.getUID())
+                                                        .child("status")
+                                                        .setValue(1);
 
+                                                finish();
+                                            }
+                                        });
 
-                finish();
-            }
-        });
-
-        buttonAccept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                event.setDescription(mDesc.toHtml());
-                Toast.makeText(PendingEventDetails.this, "Clicked", Toast.LENGTH_SHORT).show();
-                if(event!=null){
-                    Toast.makeText(PendingEventDetails.this, "Not null", Toast.LENGTH_SHORT).show();
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-                    ArrayList<String> categories = event.getCategoryList();
-                    String college = event.getCollege();
-                    if((!college.equals("")) && college!=null && (!college.equals("University of Delhi"))){
-
-                        databaseReference
-                                .child("College Content")
-                                .child(college)
-                                .child("Events")
-                                .child(event.getUID())
-                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                    Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
-                                    FirebaseDatabase.getInstance().getReference()
-                                            .child("PendingEvents")
-                                            .child(uid)
-                                            .removeValue(new DatabaseReference.CompletionListener() {
-                                                @Override
-                                                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
-                                                    Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-
-                                    FirebaseDatabase.getInstance().getReference()
-                                            .child("EmployeeContent")
-                                            .child(event.getOrganiser_uid())
-                                            .child("Events")
-                                            .child(event.getUID())
-                                            .child("status")
-                                            .setValue(1);
-
-                                    finish();
-                            }
-                        });
-
-                        Iterator<String> iterator = categories.iterator();
-                        while(iterator.hasNext()){
-                            String category = iterator.next();
-                            databaseReference
-                                    .child("College Content")
-                                    .child("Categories")
-                                    .child("Events")
-                                    .child(category)
-                                    .child(event.getUID())
-                                    .setValue(event.getUID());
-                        }
+                                        Iterator<String> iterator = categories.iterator();
+                                        while(iterator.hasNext()){
+                                            String category = iterator.next();
+                                            databaseReference
+                                                    .child("College Content")
+                                                    .child("Categories")
+                                                    .child("Events")
+                                                    .child(category)
+                                                    .child(event.getUID())
+                                                    .setValue(event.getUID());
+                                        }
 
 
 
-                    }else{
-                        databaseReference
-                                .child("Events")
-                                .child(event.getUID())
-                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
+                                    }else{
+                                        databaseReference
+                                                .child("Events")
+                                                .child(event.getUID())
+                                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
+                                                FirebaseDatabase.getInstance().getReference()
+                                                        .child("PendingEvents")
+                                                        .child(uid)
+                                                        .removeValue(new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                                                                Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                FirebaseDatabase.getInstance().getReference()
+                                                        .child("EmployeeContent")
+                                                        .child(event.getOrganiser_uid())
+                                                        .child("Events")
+                                                        .child(event.getUID())
+                                                        .child("status")
+                                                        .setValue(1);
+
+                                                finish();
+                                            }
+                                        });
+
+                                        Iterator<String> iterator = categories.iterator();
+                                        while(iterator.hasNext()){
+                                            String category = iterator.next();
+                                            databaseReference
+                                                    .child("Categories")
+                                                    .child("Events")
+                                                    .child(category)
+                                                    .child(event.getUID())
+                                                    .setValue(event.getUID());
+                                        }
+
+                                    }
+                                }
+                                break;
+                            case R.id.action_reject:
+                                FirebaseDatabase.getInstance().getReference()
+                                        .child("RejectedEvents")
+                                        .child(uid)
+                                        .setValue(event);
+
                                 FirebaseDatabase.getInstance().getReference()
                                         .child("PendingEvents")
                                         .child(uid)
@@ -269,33 +420,22 @@ public class PendingEventDetails extends AppCompatActivity {
                                                 Toast.makeText(PendingEventDetails.this, "Event Deleted Successfully.", Toast.LENGTH_SHORT).show();
                                             }
                                         });
+
                                 FirebaseDatabase.getInstance().getReference()
                                         .child("EmployeeContent")
                                         .child(event.getOrganiser_uid())
                                         .child("Events")
                                         .child(event.getUID())
                                         .child("status")
-                                        .setValue(1);
+                                        .setValue(-1);
+
 
                                 finish();
-                            }
-                        });
-
-                        Iterator<String> iterator = categories.iterator();
-                        while(iterator.hasNext()){
-                            String category = iterator.next();
-                            databaseReference
-                                    .child("Categories")
-                                    .child("Events")
-                                    .child(category)
-                                    .child(event.getUID())
-                                    .setValue(event.getUID());
+                                break;
                         }
-
+                        return true;
                     }
-                }
-            }
-        });
+                });
     }
 
 

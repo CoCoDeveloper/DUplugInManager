@@ -393,35 +393,6 @@ public class SubmitArticle extends ActionBarActivity {
         }
         mImageUrl.setText(Image);
 
-//        if (checkFields()) {
-//            article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
-//            EmployeeContentArticle employeeContentArticle = new EmployeeContentArticle(Uid,0);
-//
-//
-//            String collegeName;
-//            if(collegeChoices.getSelectedItemPosition()==0){
-//                collegeName = MainActivity.CollegeName;
-//            }else{
-//                collegeName = (String) collegeChoices.getSelectedItem();
-//            }
-//
-//            FirebaseDatabase.getInstance().getReference()
-//                    .child("PendingArticles")
-//                    .child(collegeName)
-//                    .child("Pending")
-//                    .child(Uid)
-//                    .setValue(article);
-//
-//            FirebaseDatabase.getInstance().getReference()
-//                    .child("EmployeeContent")
-//                    .child(MainActivity.currentUser.getUid())
-//                    .child("SubmitArticle")
-//                    .child(Uid)
-//                    .setValue(employeeContentArticle);
-//
-//
-//        }
-
         article = new Article(Uid,Author, Content, System.currentTimeMillis(), Tagline, Image, Title, writerUID, Department, (String) collegeChoices.getSelectedItem());
 
         if(collegeChoices.getSelectedItemPosition()>1){

@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -74,8 +75,8 @@ public class submittedEventDetails extends AppCompatActivity {
         final TextView titleView = (TextView) findViewById(R.id.event_detail_title);
         final TextView timeView = (TextView) findViewById(R.id.event_detail_time);
         final TextView venue = (TextView) findViewById(R.id.event_detail_place);
-        final Button buttonDelete = (Button) findViewById(R.id.button_event_delete);
-        final Button buttonSave = (Button) findViewById(R.id.button_event_save);
+//        final Button buttonDelete = (Button) findViewById(R.id.button_event_delete);
+//        final Button buttonSave = (Button) findViewById(R.id.button_event_save);
         layout_categoryList = (LinearLayout) findViewById(R.id.layout_categoryList);
         mDesc = (KnifeText) findViewById(R.id.submittedEventDetails_knifeText);
 
@@ -197,46 +198,90 @@ public class submittedEventDetails extends AppCompatActivity {
                     }
                 });
 
-        buttonDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                databaseReference.removeValue();
+//        buttonDelete.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                databaseReference.removeValue();
+//
+//                FirebaseDatabase.getInstance().getReference()
+//                        .child("EmployeeContent")
+//                        .child(event.getOrganiser_uid())
+//                        .child("Events")
+//                        .child(event.getUID())
+//                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<Void> task) {
+//                        Toast.makeText(submittedEventDetails.this, "Event Deleted Successfully", Toast.LENGTH_SHORT).show();
+//                        finish();
+//                    }
+//                });
+//
+//                finish();
+//            }
+//        });
 
-                FirebaseDatabase.getInstance().getReference()
-                        .child("EmployeeContent")
-                        .child(event.getOrganiser_uid())
-                        .child("Events")
-                        .child(event.getUID())
-                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+//        buttonSave.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                event.setDescription(mDesc.toHtml());
+//                event.setTitle(titleView.getText().toString());
+//                event.setVenue(venue.getText().toString());
+//
+//                if(event!=null){
+//                    databaseReference.setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                        @Override
+//                        public void onSuccess(Void aVoid) {
+//                            Toast.makeText(submittedEventDetails.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+//                            finish();
+//                        }
+//                    });
+//                }
+//            }
+//        });
+        BottomNavigationView bottomNavigationView = (BottomNavigationView)
+                findViewById(R.id.navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener
+                (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(submittedEventDetails.this, "Event Deleted Successfully", Toast.LENGTH_SHORT).show();
-                        finish();
+                    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.action_save:
+                                event.setDescription(mDesc.toHtml());
+                                event.setTitle(titleView.getText().toString());
+                                event.setVenue(venue.getText().toString());
+
+                                if(event!=null) {
+                                    databaseReference.setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(submittedEventDetails.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    });
+                                }
+                                break;
+                            case R.id.action_delete:
+                                databaseReference.removeValue();
+
+                                FirebaseDatabase.getInstance().getReference()
+                                        .child("EmployeeContent")
+                                        .child(event.getOrganiser_uid())
+                                        .child("Events")
+                                        .child(event.getUID())
+                                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Toast.makeText(submittedEventDetails.this, "Event Deleted Successfully", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                    }
+                                });
+
+                                finish();
+                                break;
+                        }
+                        return true;
                     }
                 });
-
-                finish();
-            }
-        });
-
-        buttonSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                event.setDescription(mDesc.toHtml());
-                event.setTitle(titleView.getText().toString());
-                event.setVenue(venue.getText().toString());
-
-                if(event!=null){
-                    databaseReference.setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(submittedEventDetails.this, "Saved Successfully", Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-                    });
-                }
-            }
-        });
     }
 
 
