@@ -238,7 +238,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
-        app:itemIconTint="@color/background"
         app:itemTextColor="@color/nav_item_state_list"
         app:menu="@menu/submitted_navigation_items" />
 </RelativeLayout>

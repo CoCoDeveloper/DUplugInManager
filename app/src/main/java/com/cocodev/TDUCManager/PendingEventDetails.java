@@ -305,8 +305,8 @@ public class PendingEventDetails extends AppCompatActivity {
         bottomNavigationView.setItemIconTintList(null);
         MenuItem menuItem1=bottomNavigationView.getMenu().getItem(0);
         MenuItem menuItem2=bottomNavigationView.getMenu().getItem(1);
-        menuItem1.setIcon(R.drawable.accept);
-        menuItem2.setIcon(R.drawable.reject);
+        menuItem1.setIcon(R.mipmap.ic_accept2);
+        menuItem2.setIcon(R.mipmap.ic_reject2);
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override

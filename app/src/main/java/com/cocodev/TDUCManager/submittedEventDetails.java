@@ -245,8 +245,9 @@ public class submittedEventDetails extends AppCompatActivity {
         bottomNavigationView.setItemIconTintList(null);
         MenuItem menuItem1=bottomNavigationView.getMenu().getItem(0);
         MenuItem menuItem2=bottomNavigationView.getMenu().getItem(1);
-        menuItem1.setIcon(R.drawable.save);
-        menuItem2.setIcon(R.drawable.delete);
+        menuItem1.setIcon(R.mipmap.ic_save3);
+        menuItem2.setIcon(R.mipmap.ic_delete2);
+
         bottomNavigationView.setOnNavigationItemSelectedListener
                 (new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
