@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -66,7 +67,7 @@ import java.util.List;
 
 import io.github.mthli.knife.KnifeText;
 
-public class SubmitEvent extends AppCompatActivity {
+public class SubmitEvent extends ActionBarActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
@@ -559,40 +560,6 @@ public class SubmitEvent extends AppCompatActivity {
         }
     };
 
-//    private void initDepartmentSpinner() {
-//        final ArrayList<String> departments = new ArrayList<String>();
-//        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, departments);
-//        departmentChoices.setAdapter(new NothingSelectedSpinnerAdapter(
-//                arrayAdapter,
-//                R.layout.contact_spinner_row_nothing_selected_department,
-//                this));
-//
-//        DatabaseReference departmensDR = FirebaseDatabase.getInstance().getReference().child("CollegeList")
-//                .child((String) collegeChoices.getSelectedItem());
-//
-//        departmensDR.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-//                while (iterator.hasNext()) {
-//                    DataSnapshot temp = iterator.next();
-//                    //get name of the department
-//                    String department = temp.getKey().toString();
-//                    departments.add(department);
-//                    //to reflect changes in the ui
-//                    arrayAdapter.notifyDataSetChanged();
-//                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                //We will see this later
-//
-//            }
-//        });
-//
-//    }
 
     private static Long getCurrentTime() {
         Long time = System.currentTimeMillis();

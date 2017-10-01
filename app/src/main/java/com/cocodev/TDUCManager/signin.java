@@ -1,5 +1,6 @@
 package com.cocodev.TDUCManager;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,12 +32,16 @@ public class signin extends AppCompatActivity {
     MyEditText password;
     MyTextView signIn;
     private FirebaseAuth mAuth;
+    private ProgressDialog progressDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
         mAuth = FirebaseAuth.getInstance();
+
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Please Wait...");
 
         sback = (ImageView)findViewById(R.id.sinb);
         sback.setOnClickListener(new View.OnClickListener() {
@@ -54,11 +59,12 @@ public class signin extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(checkFields()){
-
+                    progressDialog.show();
                     mAuth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString())
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
+                                    progressDialog.dismiss();
                                     if(task.isSuccessful()){
                                         // Sign in success, update UI with the signed-in user's information
                                         FirebaseUser user = mAuth.getCurrentUser();

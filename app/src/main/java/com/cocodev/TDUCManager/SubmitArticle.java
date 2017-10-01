@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -50,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SubmitArticle extends AppCompatActivity {
+public class SubmitArticle extends ActionBarActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath;
@@ -246,19 +247,6 @@ public class SubmitArticle extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-//            filePath = data.getData();
-//
-//            try {
-//                //getting image from gallery
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-//
-//                //Setting image to ImageView
-//                imgView.setImageBitmap(bitmap);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
         if(requestCode == REQUEST_IMAGE){
             try {
                 mSelectedImagesList = data.getStringArrayListExtra(MultiImageSelector.EXTRA_RESULT);

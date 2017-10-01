@@ -68,7 +68,7 @@
                 android:drawableRight="@drawable/pasword"
                 android:hint="Password"
                 android:inputType="textPassword"
-                android:maxLength="12"
+                android:maxLength="24"
                 android:padding="16dp"
                 android:textColor="#ADCCE2"
                 android:textColorHint="#ADCCE2"
