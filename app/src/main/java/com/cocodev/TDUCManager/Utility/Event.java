@@ -13,7 +13,6 @@ public class Event {
     private String venue;
     private Long time;
     private String Description;
-
     private String url;
     private Long date;
     private String title;
@@ -27,8 +26,7 @@ public class Event {
         this.UID = UID;
         this.venue = venue;
         this.time = time;
-        Description = description;
-
+        this.Description = description;
         this.url = url;
         this.date = date;
         this.title = title;

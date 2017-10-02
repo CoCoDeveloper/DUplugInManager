@@ -3,7 +3,6 @@ package com.cocodev.TDUCManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,15 +18,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -36,24 +32,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Gallery.Adapters.ImagesAdapter;
 import com.cocodev.TDUCManager.Utility.EmployeeContentEvents;
-import com.cocodev.TDUCManager.Utility.Event;
+import com.cocodev.TDUCManager.Utility.Fest;
 import com.cocodev.TDUCManager.Utility.MultiImageSelector;
 import com.cocodev.TDUCManager.Utility.User;
-import com.cocodev.TDUCManager.adapter.NothingSelectedSpinnerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -70,16 +61,13 @@ public class SubmitFest extends ActionBarActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;
-    private ArrayList<String> selectedCategoriesList = new ArrayList<String>();
     LinearLayout linearLayout;
-
     ProgressDialog progressDialog;
     DatabaseReference mEventRef;
     EditText mTitle,mVenue, mImageUrl;
-    Spinner collegeChoices, categoryChoices;
-    TextView mDate, mTime;
-    Button mSubmit, mImagePicker, mDatePicker, mTimePicker;
-    Event event;
+    TextView mStartDate,mEndDate, mTime;
+    Button mSubmit, mImagePicker, mStartDatePicker,mEndDatePicker;
+    Fest fest;
     private RecyclerView recyclerViewImages;
     private GridLayoutManager gridLayoutManager;
     private ArrayList<String> mSelectedImagesList = new ArrayList<>();
@@ -95,16 +83,11 @@ public class SubmitFest extends ActionBarActivity {
     public static User currentUser;
     private Calendar calendar;
     private int day, month, year, hour, minute;
-    private long epoch, timeEpoch;
     private KnifeText mDesc;
-
     String uid, description, title, image, venue, newCategory;
-    Long time, date;
-
+    Long time, startDate,endDate;
     FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
     StorageReference storageReference = firebaseStorage.getReference();
-
-    private static String DEFAULT_SPINNER_TEXT = "[Select a College..]";
 
     @Override
 
@@ -115,29 +98,24 @@ public class SubmitFest extends ActionBarActivity {
         actionBar.setTitle("Upload Fest");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
-
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Uploading...");
 
-        mEventRef = FirebaseDatabase.getInstance().getReference().child("PendingEvents"); //Changed Target Location
+        mEventRef = FirebaseDatabase.getInstance().getReference().child("PendingFest"); //Changed Target Location
 
         mTitle = (EditText) findViewById(R.id.editText_event_title);
         mDesc = (KnifeText) findViewById(R.id.editText_event_desc);
         mVenue = (EditText) findViewById(R.id.editText_event_venue);
         mImageUrl = (EditText) findViewById(R.id.editText_event_image);
-
-        collegeChoices = (Spinner) findViewById(R.id.spinner_college_events);
-        categoryChoices = (Spinner) findViewById(R.id.spinner_event_category);
         mSubmit = (Button) findViewById(R.id.button_event_submit);
         imgView = (ImageView) findViewById(R.id.image_view_show);
         mImagePicker = (Button) findViewById(R.id.button_image_picker_event);
-        mDatePicker = (Button) findViewById(R.id.button_event_datePicker);
-        mDate = (TextView) findViewById(R.id.textView_event_date);
-        mTimePicker = (Button) findViewById(R.id.button_event_timePicker);
+        mStartDatePicker = (Button) findViewById(R.id.button_event_datePicker);
+        mEndDatePicker  = (Button) findViewById(R.id.button_event_enddatePicker);
+        mStartDate = (TextView) findViewById(R.id.textView_event_date);
+        mEndDate = (TextView) findViewById(R.id.textView_event_enddate);
         mTime = (TextView) findViewById(R.id.textView_event_time);
         linearLayout = (LinearLayout) findViewById(R.id.events_categoriesList);
         recyclerViewImages = (RecyclerView) findViewById(R.id.recycler_view_images);
@@ -145,8 +123,6 @@ public class SubmitFest extends ActionBarActivity {
         recyclerViewImages.setHasFixedSize(true);
         recyclerViewImages.setLayoutManager(gridLayoutManager);
         mMultiImageSelector = MultiImageSelector.create();
-        initCollegeSpinner();
-        initCategorySpinner();
 
         calendar = Calendar.getInstance();
         day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -155,7 +131,6 @@ public class SubmitFest extends ActionBarActivity {
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         minute = calendar.get(Calendar.MINUTE);
 
-       // ImageGetter coming soon...
 
         setupBold();
         setupItalic();
@@ -166,20 +141,20 @@ public class SubmitFest extends ActionBarActivity {
         setupLink();
         setupClear();
 
-        showDate(day, month + 1, year);
-        showTime(hour, minute);
+       // ImageGetter coming soon...
 
-        mDatePicker.setOnClickListener(new View.OnClickListener() {
+        showStartDate(day, month + 1, year,calendar.getTimeInMillis());
+
+        mStartDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog(1337);
+                showDialog(100);
             }
         });
-
-        mTimePicker.setOnClickListener(new View.OnClickListener() {
+        mEndDatePicker.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialog(1338);
+                showDialog(200);
             }
         });
 
@@ -260,54 +235,16 @@ public class SubmitFest extends ActionBarActivity {
         }
 
     }
-
-    public void addNewCategory() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
-
-        // Set up the input
-        final EditText input = new EditText(this);
-        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        // Set up the buttons
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                newCategory = input.getText().toString();
-                DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
-                collegesDR.child(newCategory).setValue("true");
-
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-
-    }
-
-    private void showTime(int hour, int minute) {
-        String time = new StringBuilder().append(hour).append(":").append(minute).toString();
-        epoch = calendar.getTimeInMillis();
-        mTime.setText(String.valueOf(time));
-    }
-
     @Override
     protected Dialog onCreateDialog(int id) {
-        if (id == 1337)
-            return new DatePickerDialog(this, myDateListener, year, month, day);
-        if (id == 1338)
-            return new TimePickerDialog(this, myTimeListener, hour, minute, false);
+        if (id == 100)
+            return new DatePickerDialog(this, myStartDateListener, year, month, day);
+        if (id == 200)
+            return new DatePickerDialog(this, myEndDateListener, year, month, day);
         return null;
     }
 
-    private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+    private DatePickerDialog.OnDateSetListener myStartDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
             /*
@@ -319,22 +256,24 @@ public class SubmitFest extends ActionBarActivity {
             month = i1;
             day = i2;
             calendar.set(i, i1, i2);
-            showDate(i2, i1 + 1, i);
+            showStartDate(i2,i1+1,i,calendar.getTimeInMillis());
         }
     };
-    private TimePickerDialog.OnTimeSetListener myTimeListener = new TimePickerDialog.OnTimeSetListener() {
+    private DatePickerDialog.OnDateSetListener myEndDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
-        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
             /*
-            i = hour
-            i1 = minute
+            i = year
+            i1 = month
+            i2 = day
              */
-            calendar.set(year, month, day, i, i1);
-            showTime(i, i1);
-
+            year = i;
+            month = i1;
+            day = i2;
+            calendar.set(i, i1, i2);
+            showEndDate(i2,i1+1,i,calendar.getTimeInMillis());
         }
     };
-
     private boolean checkAndRequestPermissions() {
         int externalStoragePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
@@ -357,9 +296,15 @@ public class SubmitFest extends ActionBarActivity {
         }
     }
 
-    private void showDate(int day, int month, int year) {
+    private void showStartDate(int day, int month, int year,long time) {
         String date = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
-        mDate.setText(date);
+        mStartDate.setText(date);
+        startDate = time;
+    }
+    private void showEndDate(int day, int month, int year,long time) {
+        String date = new StringBuilder().append(day).append("/").append(month).append("/").append(year).toString();
+        mEndDate.setText(date);
+        endDate = time;
     }
 
     @Override
@@ -380,83 +325,7 @@ public class SubmitFest extends ActionBarActivity {
         }
     }
 
-    private void initCategorySpinner() {
 
-        final ArrayList<String> category = new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, category);
-        categoryChoices.setAdapter(new NothingSelectedSpinnerAdapter(
-                arrayAdapter,
-                R.layout.category_spinner_row_nothing_selected,
-                this));
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CategoryList").child("Events");
-
-        arrayAdapter.add("Add New Category");
-
-        categoryChoices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 1) {
-                    addNewCategory();
-                } else if (position > 1) {
-                    if (selectedCategoriesList.contains(categoryChoices.getSelectedItem().toString())) {
-                        Toast.makeText(SubmitFest.this, "This category has already been selected.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        final String category = categoryChoices.getSelectedItem().toString();
-                        selectedCategoriesList.add(category);
-                        final View childView = LayoutInflater.from(SubmitFest.this).inflate(R.layout.category_list_view,null);
-                        childView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                linearLayout.removeView(childView);
-                                selectedCategoriesList.remove(category);
-                            }
-                        });
-                        childView.findViewById(R.id.deleteCategory).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                childView.callOnClick();
-                            }
-                        });
-                        TextView textView = (TextView) childView.findViewById(R.id.category_title);
-                        textView.setText(category);
-                        linearLayout.addView(childView);
-                    }
-
-
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-
-        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while (iterator.hasNext()) {
-                    DataSnapshot temp = iterator.next();
-                    //get name of the department
-                    String college = temp.getKey().toString();
-                    category.add(college);
-                    //to reflect changes in the ui
-                    arrayAdapter.notifyDataSetChanged();
-                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //We will see this later
-
-            }
-        });
-
-
-    }
 
     private void bindData() {
 
@@ -466,18 +335,13 @@ public class SubmitFest extends ActionBarActivity {
         }else{
             image ="";
         }
-        date = epoch;
         uid = mEventRef.push().getKey();
-        String college = "";
-        if (collegeChoices.getSelectedItemPosition() > 1) {
-            college = collegeChoices.getSelectedItem().toString();
-        }
         mImageUrl.setText(image);
         if (checkFields()) {
 
-            event = new Event(selectedCategoriesList,uid, venue, time, description, image, date, title, college,MainActivity.currentUser.getUid());
+            fest = new Fest(uid, venue,description,time, image, startDate,endDate,title);
 
-            mEventRef.child(uid).setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+            mEventRef.child(uid).setValue(fest).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(SubmitFest.this, "Event has been submitted for Approval.", Toast.LENGTH_SHORT).show();
@@ -485,50 +349,15 @@ public class SubmitFest extends ActionBarActivity {
                 }
             });
 
-            EmployeeContentEvents temp = new EmployeeContentEvents(uid,0,college);
-            FirebaseDatabase.getInstance().getReference().child("EmployeeContent").child(MainActivity.currentUser.getUid())
-                    .child("Events")
-                    .child(uid)
-                    .setValue(temp);
+//            EmployeeContentEvents temp = new EmployeeContentEvents(uid,0,college);
+//            FirebaseDatabase.getInstance().getReference().child("EmployeeContent").child(MainActivity.currentUser.getUid())
+//                    .child("Events")
+//                    .child(uid)
+//                    .setValue(temp);
 
         }
 
     }
-
-    private void initCollegeSpinner() {
-
-        final ArrayList<String> colleges = new ArrayList<String>();
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, colleges);
-        collegeChoices.setAdapter(new NothingSelectedSpinnerAdapter(
-                arrayAdapter,
-                R.layout.contact_spinner_row_nothing_selected,
-                this));
-        DatabaseReference collegesDR = FirebaseDatabase.getInstance().getReference().child("CollegeList");
-        arrayAdapter.add("University of Delhi");
-        collegesDR.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Iterator<DataSnapshot> iterator = dataSnapshot.getChildren().iterator();
-                while (iterator.hasNext()) {
-                    DataSnapshot temp = iterator.next();
-                    //get name of the department
-                    String college = temp.getKey().toString();
-                    colleges.add(college);
-                    //to reflect changes in the ui
-                    arrayAdapter.notifyDataSetChanged();
-                    //collegeChoices.setSelection(arrayAdapter.getPosition(department));
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //We will see this later
-
-            }
-        });
-        collegeChoices.setOnItemSelectedListener(collegeSelectedListener);
-    }
-
     private boolean checkFields() {
         if (TextUtils.isEmpty(description)) {
             mDesc.setError("Field must not be empty");
@@ -598,6 +427,7 @@ public class SubmitFest extends ActionBarActivity {
 
         }
     }
+
 
     private void setupBold() {
         ImageButton bold = (ImageButton) findViewById(R.id.bold);

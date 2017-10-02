@@ -207,9 +207,9 @@ public class submittedEventDetails extends AppCompatActivity {
 //
 //                FirebaseDatabase.getInstance().getReference()
 //                        .child("EmployeeContent")
-//                        .child(event.getOrganiser_uid())
+//                        .child(fest.getOrganiser_uid())
 //                        .child("Events")
-//                        .child(event.getUID())
+//                        .child(fest.getUID())
 //                        .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
 //                    @Override
 //                    public void onComplete(@NonNull Task<Void> task) {
@@ -225,12 +225,12 @@ public class submittedEventDetails extends AppCompatActivity {
 //        buttonSave.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-//                event.setDescription(mDesc.toHtml());
-//                event.setTitle(titleView.getText().toString());
-//                event.setVenue(venue.getText().toString());
+//                fest.setDescription(mDesc.toHtml());
+//                fest.setTitle(titleView.getText().toString());
+//                fest.setVenue(venue.getText().toString());
 //
-//                if(event!=null){
-//                    databaseReference.setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                if(fest!=null){
+//                    databaseReference.setValue(fest).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                        @Override
 //                        public void onSuccess(Void aVoid) {
 //                            Toast.makeText(submittedEventDetails.this, "Saved Successfully", Toast.LENGTH_SHORT).show();

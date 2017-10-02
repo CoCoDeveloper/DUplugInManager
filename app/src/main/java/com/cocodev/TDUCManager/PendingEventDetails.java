@@ -174,7 +174,7 @@ public class PendingEventDetails extends AppCompatActivity {
 //                FirebaseDatabase.getInstance().getReference()
 //                        .child("RejectedEvents")
 //                        .child(uid)
-//                        .setValue(event);
+//                        .setValue(fest);
 //
 //                FirebaseDatabase.getInstance().getReference()
 //                        .child("PendingEvents")
@@ -188,9 +188,9 @@ public class PendingEventDetails extends AppCompatActivity {
 //
 //                FirebaseDatabase.getInstance().getReference()
 //                        .child("EmployeeContent")
-//                        .child(event.getOrganiser_uid())
+//                        .child(fest.getOrganiser_uid())
 //                        .child("Events")
-//                        .child(event.getUID())
+//                        .child(fest.getUID())
 //                        .child("status")
 //                        .setValue(-1);
 //
@@ -202,21 +202,21 @@ public class PendingEventDetails extends AppCompatActivity {
 //        buttonAccept.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-//                event.setDescription(mDesc.toHtml());
+//                fest.setDescription(mDesc.toHtml());
 //                Toast.makeText(PendingEventDetails.this, "Clicked", Toast.LENGTH_SHORT).show();
-//                if(event!=null){
+//                if(fest!=null){
 //                    Toast.makeText(PendingEventDetails.this, "Not null", Toast.LENGTH_SHORT).show();
 //                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-//                    ArrayList<String> categories = event.getCategoryList();
-//                    String college = event.getCollege();
+//                    ArrayList<String> categories = fest.getCategoryList();
+//                    String college = fest.getCollege();
 //                    if((!college.equals("")) && college!=null && (!college.equals("University of Delhi"))){
 //
 //                        databaseReference
 //                                .child("College Content")
 //                                .child(college)
 //                                .child("Events")
-//                                .child(event.getUID())
-//                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                .child(fest.getUID())
+//                                .setValue(fest).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                            @Override
 //                            public void onSuccess(Void aVoid) {
 //                                    Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
@@ -232,9 +232,9 @@ public class PendingEventDetails extends AppCompatActivity {
 //
 //                                    FirebaseDatabase.getInstance().getReference()
 //                                            .child("EmployeeContent")
-//                                            .child(event.getOrganiser_uid())
+//                                            .child(fest.getOrganiser_uid())
 //                                            .child("Events")
-//                                            .child(event.getUID())
+//                                            .child(fest.getUID())
 //                                            .child("status")
 //                                            .setValue(1);
 //
@@ -250,8 +250,8 @@ public class PendingEventDetails extends AppCompatActivity {
 //                                    .child("Categories")
 //                                    .child("Events")
 //                                    .child(category)
-//                                    .child(event.getUID())
-//                                    .setValue(event.getUID());
+//                                    .child(fest.getUID())
+//                                    .setValue(fest.getUID());
 //                        }
 //
 //
@@ -259,8 +259,8 @@ public class PendingEventDetails extends AppCompatActivity {
 //                    }else{
 //                        databaseReference
 //                                .child("Events")
-//                                .child(event.getUID())
-//                                .setValue(event).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                .child(fest.getUID())
+//                                .setValue(fest).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                            @Override
 //                            public void onSuccess(Void aVoid) {
 //                                Toast.makeText(PendingEventDetails.this, "Event Uploaded Successfully", Toast.LENGTH_SHORT).show();
@@ -275,9 +275,9 @@ public class PendingEventDetails extends AppCompatActivity {
 //                                        });
 //                                FirebaseDatabase.getInstance().getReference()
 //                                        .child("EmployeeContent")
-//                                        .child(event.getOrganiser_uid())
+//                                        .child(fest.getOrganiser_uid())
 //                                        .child("Events")
-//                                        .child(event.getUID())
+//                                        .child(fest.getUID())
 //                                        .child("status")
 //                                        .setValue(1);
 //
@@ -292,8 +292,8 @@ public class PendingEventDetails extends AppCompatActivity {
 //                                    .child("Categories")
 //                                    .child("Events")
 //                                    .child(category)
-//                                    .child(event.getUID())
-//                                    .setValue(event.getUID());
+//                                    .child(fest.getUID())
+//                                    .setValue(fest.getUID());
 //                        }
 //
 //                    }
