@@ -60,7 +60,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-public class SubmitNotice extends ActionBarActivity {
+public class SubmitNotice extends AppCompatActivity {
 
     DatabaseReference mNoticeRef;
     EditText mDesc,mTitle;

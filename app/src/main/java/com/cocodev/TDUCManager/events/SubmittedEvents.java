@@ -16,10 +16,14 @@ import android.widget.TextView;
 
 import com.cocodev.TDUCManager.MainActivity;
 import com.cocodev.TDUCManager.R;
+import com.cocodev.TDUCManager.SubmitArticle;
+import com.cocodev.TDUCManager.SubmitEvent;
+import com.cocodev.TDUCManager.SubmitNotice;
 import com.cocodev.TDUCManager.Utility.EmployeeContentEvents;
 import com.cocodev.TDUCManager.Utility.Event;
 import com.cocodev.TDUCManager.submittedEventDetails;
 import com.firebase.ui.database.FirebaseListAdapter;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -61,7 +65,7 @@ public class SubmittedEvents extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         mView =  inflater.inflate(R.layout.fragment_submitted_events, container, false);
-
+        setUpFloatingActionButtons(mView);
         mListView = (ListView) mView.findViewById(R.id.listView_eventHolder);
         TextView textView = (TextView) mView.findViewById(R.id.eventHolder_emptyView);
         textView.setText("There are currently no articles under this Category.");
@@ -133,6 +137,36 @@ public class SubmittedEvents extends Fragment {
 
         return mView;
     }
+
+    private void setUpFloatingActionButtons(View view) {
+        FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
+        FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
+        FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
+        FloatingActionButton submitFest = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
+
+        submitArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitArticle.class);
+                startActivity(i);
+            }
+        });
+        submitEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitEvent.class);
+                startActivity(i);
+            }
+        });
+        submitNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitNotice.class);
+                startActivity(i);
+            }
+        });
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

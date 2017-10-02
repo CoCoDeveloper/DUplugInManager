@@ -67,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        setUpFloatingActionButtons();
+        //setUpFloatingActionButtons();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -97,34 +97,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void setUpFloatingActionButtons() {
-        FloatingActionButton submitArticle = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item1);
-        FloatingActionButton submitEvent = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item2);
-        FloatingActionButton submitNotice = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
-        FloatingActionButton submitFest = (FloatingActionButton) findViewById(R.id.material_design_floating_action_menu_item3);
-
-        submitArticle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, SubmitArticle.class);
-                startActivity(i);
-            }
-        });
-        submitEvent.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, SubmitEvent.class);
-                startActivity(i);
-            }
-        });
-        submitNotice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(MainActivity.this, SubmitNotice.class);
-                startActivity(i);
-            }
-        });
-    }
 
     private void populateMenu() {
         MenuItem submittedArticles = menu.add("Submitted Articles");
