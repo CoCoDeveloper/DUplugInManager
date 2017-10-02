@@ -22,6 +22,14 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:hint="Title" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="If The Audience  Is Limited To A College" />
+
         <Spinner
             android:id="@+id/spinner_college_events"
             android:layout_width="match_parent"
@@ -30,6 +38,13 @@
             android:layout_marginLeft="8dp"
 
             />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Difference Categories Event Might Belong To" />
 
         <Spinner
             android:id="@+id/spinner_event_category"
