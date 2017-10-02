@@ -93,13 +93,20 @@ public class signin extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists()){
-                    MainActivity.currentUser = new User(user.getUid(),10,"");
-                    databaseReference.setValue(MainActivity.currentUser);
+                    MainActivity.currentUser = new User(user.getUid(),0,"");
+                    databaseReference.setValue(MainActivity.currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            startActivity(new Intent(signin.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                            finish();
+                        }
+                    });
                 }else{
                     MainActivity.currentUser = dataSnapshot.getValue(User.class);
+                    startActivity(new Intent(signin.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    finish();
                 }
-                startActivity(new Intent(signin.this,MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-                finish();
+
             }
 
             @Override

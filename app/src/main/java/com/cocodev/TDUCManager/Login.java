@@ -2,13 +2,17 @@ package com.cocodev.TDUCManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cocodev.TDUCManager.Utility.User;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -67,13 +71,21 @@ public class Login extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     if(!dataSnapshot.exists()){
-                        MainActivity.currentUser = new User(mAuth.getCurrentUser().getUid(),10,"");
-                        databaseReference.setValue(MainActivity.currentUser);
+                        Toast.makeText(Login.this, "dataSnapshot does not exist", Toast.LENGTH_SHORT).show();
+                        MainActivity.currentUser = new User(mAuth.getCurrentUser().getUid(),0,"");
+                        databaseReference.setValue(MainActivity.currentUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                startActivity(new Intent(Login.this,MainActivity.class));
+                                finish();
+                            }
+                        });
                     }else{
                         MainActivity.currentUser = dataSnapshot.getValue(User.class);
+                        startActivity(new Intent(Login.this,MainActivity.class));
+                        finish();
                     }
-                    startActivity(new Intent(Login.this,MainActivity.class));
-                    finish();
+
                 }
 
                 @Override
