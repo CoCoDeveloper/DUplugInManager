@@ -67,7 +67,7 @@ import java.util.List;
 
 import io.github.mthli.knife.KnifeText;
 
-public class SubmitEvent extends ActionBarActivity {
+public class SubmitEvent extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath = null;

@@ -51,7 +51,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class SubmitArticle extends ActionBarActivity {
+public class SubmitArticle extends AppCompatActivity {
     ImageView imgView;
     int PICK_IMAGE_REQUEST = 111;
     Uri filePath;

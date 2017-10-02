@@ -21,9 +21,13 @@ import android.widget.Toast;
 import com.cocodev.TDUCManager.Article_details;
 import com.cocodev.TDUCManager.MainActivity;
 import com.cocodev.TDUCManager.R;
+import com.cocodev.TDUCManager.SubmitArticle;
+import com.cocodev.TDUCManager.SubmitEvent;
+import com.cocodev.TDUCManager.SubmitNotice;
 import com.cocodev.TDUCManager.Utility.Article;
 import com.cocodev.TDUCManager.Utility.EmployeeContentArticle;
 import com.cocodev.TDUCManager.adapter.CustomArticleHolderAdapter;
+import com.github.clans.fab.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,6 +74,7 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_submitted_articles, container, false);
+        setUpFloatingActionButtons(view);
         mListView = (ListView) view.findViewById(R.id.listView_articleHolder);
 
 
@@ -176,6 +181,38 @@ public class SubmittedArticles extends Fragment implements AbsListView.OnScrollL
 
         }
     };
+
+
+    private void setUpFloatingActionButtons(View view) {
+        FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
+        FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
+        FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
+        FloatingActionButton submitFest = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
+
+        submitArticle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitArticle.class);
+                startActivity(i);
+            }
+        });
+        submitEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitEvent.class);
+                startActivity(i);
+            }
+        });
+        submitNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), SubmitNotice.class);
+                startActivity(i);
+            }
+        });
+    }
+
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
