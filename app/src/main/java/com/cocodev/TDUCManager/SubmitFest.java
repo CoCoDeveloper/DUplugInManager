@@ -110,9 +110,9 @@ public class SubmitFest extends ActionBarActivity {
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_events);
+        setContentView(R.layout.activity_submit_fest);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Upload Event");
+        actionBar.setTitle("Upload Fest");
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#009688")));
         actionBar.setDisplayHomeAsUpEnabled(true);
 

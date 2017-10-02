@@ -18,6 +18,7 @@ import com.cocodev.TDUCManager.MainActivity;
 import com.cocodev.TDUCManager.R;
 import com.cocodev.TDUCManager.SubmitArticle;
 import com.cocodev.TDUCManager.SubmitEvent;
+import com.cocodev.TDUCManager.SubmitFest;
 import com.cocodev.TDUCManager.SubmitNotice;
 import com.cocodev.TDUCManager.Utility.EmployeeContentEvents;
 import com.cocodev.TDUCManager.Utility.Event;
@@ -142,7 +143,7 @@ public class SubmittedEvents extends Fragment {
         FloatingActionButton submitArticle = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item1);
         FloatingActionButton submitEvent = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item2);
         FloatingActionButton submitNotice = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
-        FloatingActionButton submitFest = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item3);
+        FloatingActionButton submitFest = (FloatingActionButton) view.findViewById(R.id.material_design_floating_action_menu_item4);
 
         submitArticle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,6 +163,14 @@ public class SubmittedEvents extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(getContext(), SubmitNotice.class);
+                startActivity(i);
+            }
+        });
+
+        submitFest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getContext(), SubmitFest.class);
                 startActivity(i);
             }
         });
